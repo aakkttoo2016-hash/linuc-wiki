@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🌟 LinuC 冒険の書 🌟</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    /* ===== CSS変数 ===== */
+    :root {
+      --pink:    #ffb3c6;
+      --pink-d:  #ff85a1;
+      --mint:    #b5ead7;
+      --mint-d:  #80d4b0;
+      --lemon:   #fff0a3;
+      --lemon-d: #ffd966;
+      --sky:     #b3e0ff;
+      --sky-d:   #66c2ff;
+      --lavender:#d4b3ff;
+      --lav-d:   #b066ff;
+      --peach:   #ffd5b3;
+      --white:   #fffdf8;
+      --dark:    #3a3250;
+      --shadow:  rgba(58,50,80,0.15);
+      --bg:      #fef6fb;
+    }
+
+    /* ===== リセット & ベース ===== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Zen Maru Gothic', sans-serif;
+      background: var(--bg);
+      color: var(--dark);
+      min-height: 100vh;
+      overflow-x: hidden;
+      cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20'%3E%3Ccircle cx='10' cy='10' r='4' fill='%23ff85a1'/%3E%3C/svg%3E") 10 10, auto;
+    }
+
+    /* ===== 背景ドット柄 ===== */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: radial-gradient(circle, var(--pink-d) 1px, transparent 1px);
+      background-size: 30px 30px;
+      opacity: 0.08;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ===== 星パーティクル ===== */
+    .stars-bg {
+      position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    }
+    .star {
+      position: absolute;
+      font-size: 12px;
+      animation: starFloat linear infinite;
+      opacity: 0;
+    }
+    @keyframes starFloat {
+      0%   { opacity: 0; transform: translateY(0) scale(0.5) rotate(0deg); }
+      20%  { opacity: 0.7; }
+      80%  { opacity: 0.5; }
+      100% { opacity: 0; transform: translateY(-120vh) scale(1.2) rotate(360deg); }
+    }
+
+    /* ===== ヘッダー ===== */
+    header {
+      position: relative; z-index: 10;
+      background: linear-gradient(135deg, var(--pink) 0%, var(--lavender) 50%, var(--sky) 100%);
+      padding: 2rem 2rem 3.5rem;
+      text-align: center;
+      box-shadow: 0 4px 20px var(--shadow);
+      overflow: hidden;
+    }
+    header::after {
+      content: '';
+      position: absolute; bottom: -1px; left: 0; right: 0;
+      height: 40px;
+      background: var(--bg);
+      clip-path: ellipse(55% 100% at 50% 100%);
+    }
+    .header-inner { position: relative; z-index: 2; }
+    .site-title {
+      font-family: 'DotGothic16', monospace;
+      font-size: clamp(1.8rem, 5vw, 3rem);
+      color: var(--dark);
+      text-shadow: 3px 3px 0 rgba(255,255,255,0.6);
+      letter-spacing: 0.05em;
+      animation: titleBounce 2s ease-in-out infinite;
+    }
+    @keyframes titleBounce {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-6px); }
+    }
+    .site-subtitle {
+      margin-top: 0.5rem;
+      font-size: 0.95rem;
+      color: var(--dark);
+      opacity: 0.75;
+    }
+    .header-deco {
+      position: absolute; font-size: 2rem;
+      animation: headerDeco 3s ease-in-out infinite;
+    }
+    .header-deco:nth-child(1) { top: 1rem; left: 5%; animation-delay: 0s; }
+    .header-deco:nth-child(2) { top: 0.5rem; right: 8%; animation-delay: 0.7s; }
+    .header-deco:nth-child(3) { bottom: 2rem; left: 10%; animation-delay: 1.4s; }
+    .header-deco:nth-child(4) { bottom: 1rem; right: 5%; animation-delay: 0.3s; }
+    @keyframes headerDeco {
+      0%, 100% { transform: rotate(-10deg) scale(1); }
+      50%       { transform: rotate(10deg) scale(1.15); }
+    }
+
+    /* ===== メインレイアウト ===== */
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 260px;
+      gap: 1.5rem;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+      position: relative; z-index: 5;
+    }
+    @media (max-width: 768px) {
+      .layout { grid-template-columns: 1fr; }
+      .sidebar { order: -1; }
+    }
+
+    /* ===== サイドバー：ステータスボード ===== */
+    .sidebar { display: flex; flex-direction: column; gap: 1.2rem; }
+
+    .status-board {
+      background: linear-gradient(160deg, #fff0f8 0%, #f0f0ff 100%);
+      border: 3px solid var(--pink-d);
+      border-radius: 20px;
+      padding: 1.2rem;
+      box-shadow: 4px 4px 0 var(--pink-d), 0 8px 20px var(--shadow);
+      position: sticky; top: 1.5rem;
+    }
+    .status-title {
+      font-family: 'DotGothic16', monospace;
+      font-size: 0.75rem;
+      letter-spacing: 0.12em;
+      color: var(--pink-d);
+      text-align: center;
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+    }
+
+    /* キャラクター */
+    .character-area {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    .character-sprite {
+      font-size: 4rem;
+      display: block;
+      animation: charIdle 1.6s ease-in-out infinite;
+      filter: drop-shadow(0 4px 8px rgba(255,100,150,0.3));
+      cursor: pointer;
+      user-select: none;
+    }
+    @keyframes charIdle {
+      0%, 100% { transform: translateY(0) scaleX(1); }
+      25%       { transform: translateY(-4px) scaleX(1.05); }
+      75%       { transform: translateY(2px) scaleX(0.97); }
+    }
+    .character-sprite:hover {
+      animation: charDance 0.4s ease-in-out infinite alternate;
+    }
+    @keyframes charDance {
+      from { transform: rotate(-10deg) scale(1.15); }
+      to   { transform: rotate(10deg)  scale(1.2); }
+    }
+    .char-name {
+      font-family: 'DotGothic16', monospace;
+      font-size: 1rem; color: var(--dark);
+      margin-top: 0.3rem; display: block;
+    }
+    .char-class {
+      font-size: 0.7rem; color: var(--lav-d);
+      background: var(--lavender);
+      padding: 2px 8px; border-radius: 20px;
+      display: inline-block; margin-top: 0.2rem;
+    }
+
+    /* レベル & XP */
+    .stat-row {
+      display: flex; align-items: center; gap: 0.5rem;
+      margin-bottom: 0.6rem;
+    }
+    .stat-label {
+      font-family: 'DotGothic16', monospace;
+      font-size: 0.7rem; color: var(--dark); opacity: 0.7;
+      min-width: 36px;
+    }
+    .stat-value {
+      font-family: 'DotGothic16', monospace;
+      font-size: 0.9rem; color: var(--pink-d);
+      font-weight: bold;
+    }
+    .xp-bar-wrap {
+      flex: 1; background: #e8e0f0;
+      border-radius: 10px; height: 10px; overflow: hidden;
+    }
+    .xp-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--pink-d), var(--lav-d));
+      border-radius: 10px;
+      transition: width 1s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .xp-bar::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%);
+      animation: shimmer 2s linear infinite;
+    }
+    @keyframes shimmer {
+      from { transform: translateX(-100%); }
+      to   { transform: translateX(100%); }
+    }
+
+    /* ステータス数値 */
+    .stats-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 0.5rem; margin-top: 0.8rem;
+    }
+    .stat-chip {
+      background: white;
+      border: 2px solid var(--mint-d);
+      border-radius: 12px; padding: 0.4rem 0.5rem;
+      text-align: center;
+      box-shadow: 2px 2px 0 var(--mint-d);
+    }
+    .stat-chip .chip-val {
+      font-family: 'DotGothic16', monospace;
+      font-size: 1.1rem; color: var(--dark);
+      display: block;
+    }
+    .stat-chip .chip-lbl {
+      font-size: 0.6rem; color: #888;
+    }
+
+    /* やる気メッセージ */
+    .motivation-box {
+      background: linear-gradient(135deg, var(--lemon) 0%, var(--peach) 100%);
+      border: 2px dashed var(--lemon-d);
+      border-radius: 16px; padding: 1rem;
+      text-align: center;
+      box-shadow: 3px 3px 0 var(--lemon-d);
+    }
+    .motivation-label {
+      font-family: 'DotGothic16', monospace;
+      font-size: 0.65rem; color: var(--dark); opacity: 0.6;
+      letter-spacing: 0.1em; margin-bottom: 0.4rem;
+    }
+    .motivation-text {
+      font-size: 0.85rem; color: var(--dark);
+      line-height: 1.5;
+      min-height: 3em;
+      transition: opacity 0.4s;
+    }
+    .motivation-text.fade { opacity: 0; }
+    .refresh-btn {
+      margin-top: 0.5rem;
+      background: white; border: none;
+      border-radius: 20px; padding: 4px 12px;
+      font-size: 0.7rem; cursor: pointer;
+      color: var(--dark); opacity: 0.7;
+      transition: all 0.2s;
+    }
+    .refresh-btn:hover { opacity: 1; transform: scale(1.05); }
+
+    /* ===== メインコンテンツ ===== */
+    .main-content { min-width: 0; }
+
+    /* セクションタイトル */
+    .section-title {
+      font-family: 'DotGothic16', monospace;
+      font-size: 1rem;
+      color: var(--dark);
+      display: flex; align-items: center; gap: 0.5rem;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 3px dotted var(--pink-d);
+    }
+
+    /* 進捗バナー */
+    .progress-banner {
+      background: linear-gradient(135deg, var(--mint) 0%, var(--sky) 100%);
+      border-radius: 20px; padding: 1.2rem 1.5rem;
+      margin-bottom: 1.8rem;
+      box-shadow: 4px 4px 0 var(--mint-d), 0 8px 20px var(--shadow);
+      display: flex; align-items: center; gap: 1rem;
+      position: relative; overflow: hidden;
+    }
+    .progress-banner::before {
+      content: '✨';
+      position: absolute; right: 1rem; top: 50%; transform: translateY(-50%);
+      font-size: 3rem; opacity: 0.2;
+    }
+    .banner-icon { font-size: 2.5rem; }
+    .banner-info h2 {
+      font-size: 1rem; color: var(--dark);
+      margin-bottom: 0.4rem;
+    }
+    .banner-bar-wrap {
+      background: rgba(255,255,255,0.5);
+      border-radius: 10px; height: 14px; overflow: hidden;
+      width: 100%;
+    }
+    .banner-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--mint-d), #4ecdc4);
+      border-radius: 10px;
+      position: relative; overflow: hidden;
+    }
+    .banner-bar::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+      animation: shimmer 1.8s linear infinite;
+    }
+    .bar-label {
+      font-family: 'DotGothic16', monospace;
+      font-size: 0.7rem; color: var(--dark);
+      margin-top: 0.3rem; opacity: 0.7;
+    }
+
+    /* カードグリッド */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+
+    /* 記事カード */
+    .card {
+      background: white;
+      border-radius: 20px;
+      padding: 1.2rem;
+      border: 3px solid transparent;
+      box-shadow: 4px 4px 0 rgba(0,0,0,0.06), 0 4px 15px var(--shadow);
+      transition: transform 0.25s cubic-bezier(.34,1.56,.64,1),
+                  box-shadow 0.25s ease,
+                  border-color 0.25s ease;
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+      position: relative;
+      overflow: hidden;
+    }
+    .card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 4px;
+    }
+    .card:hover {
+      transform: translateY(-6px) scale(1.02);
+      box-shadow: 6px 10px 0 rgba(0,0,0,0.08), 0 12px 30px var(--shadow);
+    }
+    /* カラーバリエーション */
+    .card.pink   { border-color: var(--pink); }
+    .card.pink::before { background: linear-gradient(90deg, var(--pink), var(--pink-d)); }
+    .card.pink:hover   { border-color: var(--pink-d); box-shadow: 6px 10px 0 var(--pink), 0 12px 30px var(--shadow); }
+    .card.mint   { border-color: var(--mint); }
+    .card.mint::before { background: linear-gradient(90deg, var(--mint), var(--mint-d)); }
+    .card.mint:hover   { border-color: var(--mint-d); box-shadow: 6px 10px 0 var(--mint-d), 0 12px 30px var(--shadow); }
+    .card.sky    { border-color: var(--sky); }
+    .card.sky::before { background: linear-gradient(90deg, var(--sky), var(--sky-d)); }
+    .card.sky:hover    { border-color: var(--sky-d); box-shadow: 6px 10px 0 var(--sky-d), 0 12px 30px var(--shadow); }
+    .card.lemon  { border-color: var(--lemon); }
+    .card.lemon::before { background: linear-gradient(90deg, var(--lemon), var(--lemon-d)); }
+    .card.lemon:hover  { border-color: var(--lemon-d); box-shadow: 6px 10px 0 var(--lemon-d), 0 12px 30px var(--shadow); }
+    .card.lavender { border-color: var(--lavender); }
+    .card.lavender::before { background: linear-gradient(90deg, var(--lavender), var(--lav-d)); }
+    .card.lavender:hover { border-color: var(--lav-d); box-shadow: 6px 10px 0 var(--lav-d), 0 12px 30px var(--shadow); }
+
+    .card-icon { font-size: 2rem; margin-bottom: 0.5rem; display: block; }
+    .card-title {
+      font-size: 0.95rem; font-weight: 700;
+      color: var(--dark); margin-bottom: 0.3rem;
+    }
+    .card-desc {
+      font-size: 0.75rem; color: #888;
+      line-height: 1.5;
+    }
+    .card-badge {
+      display: inline-block;
+      margin-top: 0.6rem;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-size: 0.65rem;
+      font-family: 'DotGothic16', monospace;
+    }
+    .badge-new  { background: var(--pink);    color: var(--dark); }
+    .badge-wip  { background: var(--lemon);   color: var(--dark); }
+    .badge-done { background: var(--mint);    color: var(--dark); }
+    .badge-todo { background: #eee;           color: #999; }
+
+    /* キラキラエフェクト */
+    .card:hover::after {
+      content: '✨';
+      position: absolute; top: 0.5rem; right: 0.5rem;
+      font-size: 1rem;
+      animation: sparkle 0.5s ease forwards;
+    }
+    @keyframes sparkle {
+      from { opacity: 0; transform: scale(0) rotate(-30deg); }
+      to   { opacity: 1; transform: scale(1) rotate(0deg); }
+    }
+
+    /* 空カードテンプレート（コメントで説明） */
+    .card-template-hint {
+      border: 3px dashed #ddd;
+      border-radius: 20px;
+      padding: 1.2rem;
+      text-align: center;
+      color: #ccc;
+      font-size: 0.8rem;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 0.4rem;
+      min-height: 130px;
+      transition: all 0.2s;
+    }
+    .card-template-hint:hover {
+      border-color: var(--pink-d); color: var(--pink-d);
+      background: #fff5f8;
+    }
+    .card-template-hint .plus { font-size: 2rem; }
+
+    /* カテゴリーチップ */
+    .category-row {
+      display: flex; flex-wrap: wrap; gap: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .cat-chip {
+      border: none;
+      padding: 6px 16px; border-radius: 20px;
+      font-family: 'Zen Maru Gothic', sans-serif;
+      font-size: 0.8rem; cursor: pointer;
+      transition: all 0.2s cubic-bezier(.34,1.56,.64,1);
+      font-weight: 700;
+    }
+    .cat-chip:hover { transform: translateY(-3px) scale(1.05); }
+    .cat-chip.active { box-shadow: 3px 3px 0 rgba(0,0,0,0.15); }
+    .cat-all    { background: var(--dark); color: white; }
+    .cat-linux  { background: var(--mint);    color: var(--dark); }
+    .cat-net    { background: var(--sky);     color: var(--dark); }
+    .cat-sec    { background: var(--pink);    color: var(--dark); }
+    .cat-cmd    { background: var(--lavender);color: var(--dark); }
+    .cat-other  { background: var(--lemon);   color: var(--dark); }
+
+    /* フッター */
+    footer {
+      text-align: center;
+      padding: 2rem;
+      font-size: 0.75rem;
+      color: #aaa;
+      position: relative; z-index: 5;
+    }
+
+    /* ===== トースト通知 ===== */
+    .toast {
+      position: fixed; bottom: 2rem; right: 2rem;
+      background: white;
+      border: 3px solid var(--mint-d);
+      border-radius: 16px; padding: 0.8rem 1.2rem;
+      box-shadow: 4px 4px 0 var(--mint-d), 0 8px 20px var(--shadow);
+      font-size: 0.85rem;
+      transform: translateY(120%);
+      transition: transform 0.4s cubic-bezier(.34,1.56,.64,1);
+      z-index: 999;
+      max-width: 280px;
+    }
+    .toast.show { transform: translateY(0); }
+    .toast-icon { margin-right: 0.4rem; }
+  </style>
+</head>
+<body>
+
+<!-- ===== 背景の星パーティクル ===== -->
+<div class="stars-bg" id="starsContainer"></div>
+
+<!-- ===== ヘッダー ===== -->
+<header>
+  <span class="header-deco">🐧</span>
+  <span class="header-deco">⚙️</span>
+  <span class="header-deco">💻</span>
+  <span class="header-deco">📚</span>
+  <div class="header-inner">
+    <h1 class="site-title">📖 LinuC 冒険の書 📖</h1>
+    <p class="site-subtitle">学んだことを記録して、Linuxマスターへの道を歩もう！</p>
+  </div>
+</header>
+
+<!-- ===== メインレイアウト ===== -->
+<div class="layout">
+
+  <!-- ===== メインコンテンツ ===== -->
+  <main class="main-content">
+
+    <!-- 進捗バナー -->
+    <div class="progress-banner">
+      <div class="banner-icon">🗺️</div>
+      <div class="banner-info" style="flex:1">
+        <h2>LinuC Level 1 攻略進捗</h2>
+        <div class="banner-bar-wrap">
+          <div class="banner-bar" id="progressBar" style="width: 30%"></div>
+        </div>
+        <div class="bar-label">学習済み: <span id="doneCount">3</span> / <span id="totalCount">10</span> 章  ✨ あと少し！</div>
+      </div>
+    </div>
+
+    <!-- カテゴリーフィルター -->
+    <div class="section-title">🎮 カテゴリー</div>
+    <div class="category-row" id="catRow">
+      <button class="cat-chip cat-all active" data-cat="all">すべて</button>
+      <button class="cat-chip cat-linux"  data-cat="linux">🐧 Linux基礎</button>
+      <button class="cat-chip cat-cmd"    data-cat="cmd">⌨️ コマンド</button>
+      <button class="cat-chip cat-net"    data-cat="net">🌐 ネットワーク</button>
+      <button class="cat-chip cat-sec"    data-cat="sec">🔒 セキュリティ</button>
+      <button class="cat-chip cat-other"  data-cat="other">🎲 その他</button>
+    </div>
+
+    <!-- ===== カードグリッド ===== -->
+    <div class="section-title">📚 学習記事一覧</div>
+    <div class="cards-grid" id="cardsGrid">
+
+      <!--
+      ============================================================
+      📝 カードのテンプレート
+      ============================================================
+      新しい記事を追加するには、下記の <a class="card"> ブロックを
+      コピーして追記してください。
+
+      属性の説明：
+        href       → 記事HTMLファイルのパス（例: linuc/article.html）
+        data-cat   → カテゴリー（linux / cmd / net / sec / other）
+        class の色 → pink / mint / sky / lemon / lavender のどれか
+
+      バッジの種類：
+        badge-new  → 最近追加した記事
+        badge-wip  → 書きかけ中
+        badge-done → 学習完了！
+        badge-todo → まだ未着手
+
+      ============================================================
+
+      <a href="linuc/article.html" class="card mint" data-cat="linux">
+        <span class="card-icon">🐧</span>
+        <div class="card-title">記事タイトル</div>
+        <div class="card-desc">記事の内容を一言で説明するメモ。</div>
+        <span class="card-badge badge-new">NEW</span>
+      </a>
+      ============================================================
+      -->
+
+      <!-- 記事カード例（ここを参考に追加してね！） -->
+      <a href="linuc/linux-basics.html" class="card mint" data-cat="linux">
+        <span class="card-icon">🐧</span>
+        <div class="card-title">Linuxの基本構造</div>
+        <div class="card-desc">カーネル・シェル・ファイルシステムの概要</div>
+        <span class="card-badge badge-done">完了✓</span>
+      </a>
+
+      <a href="linuc/file-system.html" class="card sky" data-cat="linux">
+        <span class="card-icon">📁</span>
+        <div class="card-title">ファイルシステム</div>
+        <div class="card-desc">ext4・FHS・マウントポイントを整理</div>
+        <span class="card-badge badge-done">完了✓</span>
+      </a>
+
+      <a href="linuc/basic-commands.html" class="card lemon" data-cat="cmd">
+        <span class="card-icon">⌨️</span>
+        <div class="card-title">基本コマンド集</div>
+        <div class="card-desc">ls / cd / cp / mv / rm などの使い方まとめ</div>
+        <span class="card-badge badge-done">完了✓</span>
+      </a>
+
+      <a href="linuc/permissions.html" class="card pink" data-cat="linux">
+        <span class="card-icon">🔑</span>
+        <div class="card-title">パーミッション</div>
+        <div class="card-desc">rwx の読み方・chmod・chown の使い方</div>
+        <span class="card-badge badge-wip">記録中…</span>
+      </a>
+
+      <a href="linuc/networking.html" class="card lavender" data-cat="net">
+        <span class="card-icon">🌐</span>
+        <div class="card-title">ネットワーク基礎</div>
+        <div class="card-desc">IP・サブネット・ifconfig / ip コマンド</div>
+        <span class="card-badge badge-wip">記録中…</span>
+      </a>
+
+      <a href="linuc/shell-script.html" class="card mint" data-cat="cmd">
+        <span class="card-icon">📜</span>
+        <div class="card-title">シェルスクリプト入門</div>
+        <div class="card-desc">変数・条件分岐・ループの書き方</div>
+        <span class="card-badge badge-todo">未着手</span>
+      </a>
+
+      <a href="linuc/process.html" class="card lemon" data-cat="linux">
+        <span class="card-icon">⚙️</span>
+        <div class="card-title">プロセス管理</div>
+        <div class="card-desc">ps・kill・top・systemctl の使い方</div>
+        <span class="card-badge badge-todo">未着手</span>
+      </a>
+
+      <a href="linuc/ssh.html" class="card sky" data-cat="sec">
+        <span class="card-icon">🔒</span>
+        <div class="card-title">SSH & セキュリティ</div>
+        <div class="card-desc">公開鍵認証・known_hosts・セキュリティ設定</div>
+        <span class="card-badge badge-todo">未着手</span>
+      </a>
+
+      <a href="linuc/package.html" class="card pink" data-cat="linux">
+        <span class="card-icon">📦</span>
+        <div class="card-title">パッケージ管理</div>
+        <div class="card-desc">apt / yum / dnf でのインストール・更新</div>
+        <span class="card-badge badge-todo">未着手</span>
+      </a>
+
+      <a href="linuc/vi-editor.html" class="card lavender" data-cat="cmd">
+        <span class="card-icon">📝</span>
+        <div class="card-title">Viエディタ</div>
+        <div class="card-desc">モード切替・保存・検索・置換の操作</div>
+        <span class="card-badge badge-todo">未着手</span>
+      </a>
+
+      <!-- 新しいカードをここに追加！↓ のダミーは削除してOK -->
+      <div class="card-template-hint" onclick="showToast('新しい記事を追加しよう！index.htmlにカードを追記してね📝')">
+        <span class="plus">＋</span>
+        <span>新しい記事を追加</span>
+      </div>
+
+    </div><!-- /cards-grid -->
+
+  </main>
+
+  <!-- ===== サイドバー ===== -->
+  <aside class="sidebar">
+
+    <!-- ステータスボード -->
+    <div class="status-board">
+      <div class="status-title">▶ PLAYER STATUS ◀</div>
+
+      <!-- キャラクター -->
+      <div class="character-area">
+        <span class="character-sprite" id="charSprite" title="クリックで応援してもらう！">🐧</span>
+        <span class="char-name">ルーナ</span>
+        <span class="char-class">⚙ Linux見習い</span>
+      </div>
+
+      <!-- レベル & XP -->
+      <div class="stat-row">
+        <span class="stat-label">LV</span>
+        <span class="stat-value" id="charLevel">3</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">XP</span>
+        <div class="xp-bar-wrap">
+          <div class="xp-bar" id="xpBar" style="width: 45%"></div>
+        </div>
+        <span class="stat-label" style="min-width:auto; font-size:0.65rem; opacity:0.6">45%</span>
+      </div>
+
+      <!-- ステータス数値 -->
+      <div class="stats-grid">
+        <div class="stat-chip">
+          <span class="chip-val" id="artCount">3</span>
+          <span class="chip-lbl">📝 記事数</span>
+        </div>
+        <div class="stat-chip">
+          <span class="chip-val">12</span>
+          <span class="chip-lbl">🔥 連続日数</span>
+        </div>
+        <div class="stat-chip">
+          <span class="chip-val">68</span>
+          <span class="chip-lbl">⭐ 総XP</span>
+        </div>
+        <div class="stat-chip">
+          <span class="chip-val">2</span>
+          <span class="chip-lbl">🏅 バッジ</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- やる気メッセージ -->
+    <div class="motivation-box">
+      <div class="motivation-label">✨ 今日のやる気 ✨</div>
+      <div class="motivation-text" id="motivationText">読み込み中…</div>
+      <button class="refresh-btn" onclick="refreshMotivation()">🎲 もう一度</button>
+    </div>
+
+  </aside>
+</div>
+
+<!-- フッター -->
+<footer>
+  <p>🐧 LinuC 冒険の書 — 自分だけの学習記録 | <span id="currentDate"></span></p>
+  <p style="margin-top:0.3rem; font-size:0.65rem;">記事は <code>linuc/</code> フォルダに追加してね ✨</p>
+</footer>
+
+<!-- トースト通知 -->
+<div class="toast" id="toast">
+  <span class="toast-icon">🌟</span>
+  <span id="toastMsg"></span>
+</div>
+
+<script>
+// ===================================================
+// 🎲 やる気・応援メッセージのリスト
+// 自由にメッセージを追加してね！
+// ===================================================
+const motivations = [
+  "今日も1ページ、未来の自分への贈り物だよ📖",
+  "ls -la できたら今日は勝ちでしょ😎",
+  "chmod 755 …覚えたら次は777の罠に気をつけて⚠️",
+  "シェルスクリプトは怖くない、ただの文章だよ🤝",
+  "man コマンドが友達になれたら本物だよ💪",
+  "エラーは宝の地図🗺️ 答えがそこにある！",
+  "sudo するなら理由を理解してから！🛡️",
+  "今日の積み重ねが合格証書になるよ🏆",
+  "Ctrl+C は逃げじゃない、再挑戦ボタンだ🔁",
+  "わからなくて当然！調べた数だけ強くなる📡",
+  "パイプライン | が使えたら中級者の仲間入り✨",
+  "ログファイルは正直者、/var/log に聞いてみて🔍",
+  "cronジョブが動いた朝はちょっとした魔法🌅",
+  "grep で探し物が見つかった瞬間、気持ちいい～🎯",
+  "ネットワーク怖い？ ping 127.0.0.1 から始めよう🏓",
+];
+
+function refreshMotivation() {
+  const el = document.getElementById('motivationText');
+  el.classList.add('fade');
+  setTimeout(() => {
+    el.textContent = motivations[Math.floor(Math.random() * motivations.length)];
+    el.classList.remove('fade');
+  }, 400);
+}
+
+// ===================================================
+// ⭐ 星パーティクル生成
+// ===================================================
+function createStars() {
+  const container = document.getElementById('starsContainer');
+  const emojis = ['⭐','✨','💫','🌟','⚡'];
+  for (let i = 0; i < 18; i++) {
+    const star = document.createElement('div');
+    star.className = 'star';
+    star.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+    star.style.left = Math.random() * 100 + 'vw';
+    star.style.animationDuration = (8 + Math.random() * 12) + 's';
+    star.style.animationDelay = (Math.random() * 10) + 's';
+    star.style.fontSize = (10 + Math.random() * 12) + 'px';
+    container.appendChild(star);
+  }
+}
+
+// ===================================================
+// 🎮 カテゴリーフィルター
+// ===================================================
+function setupFilter() {
+  const chips = document.querySelectorAll('.cat-chip');
+  const cards = document.querySelectorAll('#cardsGrid .card');
+  chips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      chips.forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      const cat = chip.dataset.cat;
+      cards.forEach(card => {
+        card.style.display = (cat === 'all' || card.dataset.cat === cat) ? '' : 'none';
+      });
+    });
+  });
+}
+
+// ===================================================
+// 🍞 トースト通知
+// ===================================================
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  document.getElementById('toastMsg').textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+// ===================================================
+// 🐧 キャラクタークリックで応援メッセージ
+// ===================================================
+const cheerMessages = [
+  "いっしょにがんばるよ！🐧💪",
+  "記事を増やすと私も成長するよ✨",
+  "今日も来てくれてありがとう！🌸",
+  "ファイトー！⚡",
+  "休憩も大事だよ☕ でも戻ってきてね！",
+];
+document.getElementById('charSprite').addEventListener('click', () => {
+  const msg = cheerMessages[Math.floor(Math.random() * cheerMessages.length)];
+  showToast(msg);
+  const el = document.getElementById('charSprite');
+  el.style.transform = 'scale(1.4) rotate(15deg)';
+  setTimeout(() => { el.style.transform = ''; }, 500);
+});
+
+// ===================================================
+// 📅 今日の日付
+// ===================================================
+const d = new Date();
+document.getElementById('currentDate').textContent =
+  `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`;
+
+// ===================================================
+// 📊 記事数から自動レベル計算（記事を追加すると上がる！）
+// ===================================================
+function calcLevel() {
+  const done  = document.querySelectorAll('.card-badge.badge-done').length;
+  const total = document.querySelectorAll('#cardsGrid .card[data-cat]').length;
+  const xpPct = Math.round((done / (total || 1)) * 100);
+  const lv = Math.floor(done / 2) + 1;
+
+  document.getElementById('charLevel').textContent = lv;
+  document.getElementById('xpBar').style.width = xpPct + '%';
+  document.getElementById('artCount').textContent = done;
+  document.getElementById('doneCount').textContent = done;
+  document.getElementById('totalCount').textContent = total;
+  document.getElementById('progressBar').style.width = xpPct + '%';
+
+  // クラス名も更新
+  const classes = ['Linux見習い','コマンド使い','シェル職人','カーネルの友','Linuxマスター'];
+  const idx = Math.min(Math.floor(lv / 3), classes.length - 1);
+  document.querySelector('.char-class').textContent = '⚙ ' + classes[idx];
+}
+
+// ===================================================
+// 🚀 初期化
+// ===================================================
+window.addEventListener('DOMContentLoaded', () => {
+  createStars();
+  setupFilter();
+  calcLevel();
+  refreshMotivation();
+
+  // 起動ウェルカムトースト（少し遅らせて表示）
+  setTimeout(() => showToast('おかえり！今日も一緒に学ぼう🐧✨'), 800);
+});
+</script>
+</body>
+</html>
