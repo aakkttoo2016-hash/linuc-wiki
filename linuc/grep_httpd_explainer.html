@@ -1,0 +1,260 @@
+
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:#f5f4fb;color:#2d2a40;font-family:'Noto Sans JP',sans-serif;padding:20px 16px 40px;line-height:1.6;}
+  .mono{font-family:'JetBrains Mono',monospace;}
+  .page-title{text-align:center;margin-bottom:22px;}
+  .page-title h1{font-size:17px;font-weight:700;color:#3d3489;margin-bottom:3px;}
+  .page-title p{font-size:12px;color:#7b77a0;}
+  .sec{font-size:11px;font-weight:700;color:#9b97c0;letter-spacing:.07em;margin:22px 0 10px 2px;}
+  .card{background:#fff;border-radius:14px;padding:16px 18px;margin-bottom:10px;border:1px solid #e8e6f4;}
+  .card-label{font-size:11px;font-weight:700;color:#9b97c0;letter-spacing:.06em;margin-bottom:10px;}
+  code{font-family:'JetBrains Mono',monospace;font-size:12px;background:#eeedfe;color:#3d3489;padding:1px 5px;border-radius:3px;}
+
+  /* なぜ1件多いか */
+  .why-box{background:#fde8ed;border-radius:12px;padding:14px 16px;margin-bottom:10px;border:1px solid #f5b8c8;}
+  .why-title{font-size:13px;font-weight:700;color:#8b2040;margin-bottom:8px;}
+  .ps-output{background:#fff;border-radius:8px;padding:10px 14px;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:2;overflow-x:auto;white-space:nowrap;}
+  .row-ok{color:#085041;}
+  .row-ng{color:#cc2244;font-weight:700;}
+  .row-label{display:inline-block;font-size:10px;font-weight:700;padding:1px 6px;border-radius:4px;margin-left:6px;vertical-align:middle;}
+  .rl-ok{background:#e5f8f2;color:#085041;}
+  .rl-ng{background:#fde8ed;color:#8b2040;}
+  .why-desc{font-size:12px;color:#8b2040;margin-top:8px;line-height:1.7;}
+
+  /* 選択肢一覧 */
+  .cmd-list{display:flex;flex-direction:column;gap:8px;}
+  .cmd-row{border-radius:12px;padding:13px 15px;border:1px solid;}
+  .cr-ok{background:#e5f8f2;border-color:#b8ead8;}
+  .cr-ng{background:#f5f4fb;border-color:#e0ddf0;}
+  .cmd-head{display:flex;align-items:flex-start;gap:8px;margin-bottom:6px;flex-wrap:wrap;}
+  .cmd-code{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;flex:1;}
+  .cr-ok .cmd-code{color:#085041;}
+  .cr-ng .cmd-code{color:#7b77a0;}
+  .cmd-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;white-space:nowrap;flex-shrink:0;}
+  .cb-ok{background:#085041;color:#e5f8f2;}
+  .cb-ng{background:#9b97c0;color:#f5f4fb;}
+  .cmd-title{font-size:13px;font-weight:700;color:#2d2a40;margin-bottom:3px;}
+  .cmd-desc{font-size:12px;color:#7b77a0;line-height:1.6;}
+  .cr-ng .cmd-title{color:#9b97c0;}
+
+  /* パイプ図解 */
+  .pipe-flow{display:flex;flex-direction:column;gap:4px;}
+  .pf-row{display:flex;align-items:center;gap:6px;}
+  .pf-box{border-radius:8px;padding:8px 12px;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;flex:1;}
+  .pf-ps{background:#eeedfe;color:#3d3489;}
+  .pf-grep{background:#e5f8f2;color:#085041;}
+  .pf-grepv{background:#fef6e8;color:#7a4f00;}
+  .pf-arrow{color:#b0aac8;font-size:16px;flex-shrink:0;}
+  .pf-result{font-size:11px;color:#7b77a0;padding-left:4px;}
+
+  /* pgrep説明 */
+  .pgrep-box{background:#eeedfe;border-radius:12px;padding:14px 16px;border:1px solid #d0ccf8;}
+  .pgrep-title{font-size:13px;font-weight:700;color:#3d3489;margin-bottom:6px;}
+  .pgrep-compare{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;}
+  .pc-old{background:#fde8ed;border-radius:8px;padding:10px 12px;border:1px solid #f5b8c8;}
+  .pc-new{background:#e5f8f2;border-radius:8px;padding:10px 12px;border:1px solid #b8ead8;}
+  .pc-label{font-size:10px;font-weight:700;margin-bottom:4px;}
+  .pc-old .pc-label{color:#8b2040;}
+  .pc-new .pc-label{color:#085041;}
+  .pc-cmd{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;}
+  .pc-old .pc-cmd{color:#8b2040;}
+  .pc-new .pc-cmd{color:#085041;}
+  .pc-desc{font-size:11px;color:#7b77a0;margin-top:3px;}
+
+  /* クイズ */
+  .q-sc{background:#f5f4fb;border-radius:8px;padding:8px 12px;font-size:12px;color:#7b77a0;line-height:1.6;margin-bottom:10px;border:1px solid #e8e6f4;}
+  .q-text{font-size:13px;font-weight:700;color:#2d2a40;margin-bottom:10px;line-height:1.5;}
+  .q-multi{font-size:11px;color:#9b97c0;margin-bottom:8px;}
+  .q-opts{display:flex;flex-direction:column;gap:6px;}
+  .qb{background:#fff;border:1px solid #e8e6f4;border-radius:10px;padding:10px 14px;font-size:12px;font-family:'JetBrains Mono',monospace;color:#2d2a40;cursor:pointer;text-align:left;transition:background .15s;}
+  .qb:hover:not(:disabled){background:#eeedfe;}
+  .qb.selected{border-color:#5040b8;background:#eeedfe;font-weight:700;}
+  .qb.ok{background:#e5f8f2;border-color:#5DCAA5;color:#085041;}
+  .qb.ng{background:#fde8ed;border-color:#f5b8c8;color:#8b2040;}
+  .check-btn{background:#eeedfe;border:1px solid #d0ccf8;border-radius:10px;padding:9px 20px;font-size:12px;font-weight:700;color:#3d3489;cursor:pointer;margin-top:10px;}
+  .check-btn:hover{background:#d8d5fc;}
+  .check-btn:disabled{opacity:.4;cursor:default;}
+  .qr{font-size:12px;margin-top:10px;padding:10px 12px;border-radius:8px;display:none;line-height:1.7;}
+  .qr-ok{background:#e5f8f2;color:#085041;}
+  .qr-ng{background:#fde8ed;color:#8b2040;}
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+
+<div class="page-title">
+  <h1>grep httpd が自分自身を拾う問題</h1>
+  <p>仕組みから理解すれば一生忘れない</p>
+</div>
+
+<!-- なぜ1件多いか -->
+<div class="sec">まず「なぜ1件多いのか」を理解する</div>
+<div class="why-box">
+  <div class="why-title">⚠ ps ax | grep httpd を実行したときの出力イメージ</div>
+  <div class="ps-output">
+    <div class="row-ok"> 1234 ?  S  0:00 /usr/sbin/httpd <span class="row-label rl-ok">本物</span></div>
+    <div class="row-ok"> 1235 ?  S  0:00 /usr/sbin/httpd <span class="row-label rl-ok">本物</span></div>
+    <div class="row-ok"> 1236 ?  S  0:00 /usr/sbin/httpd <span class="row-label rl-ok">本物</span></div>
+    <div class="row-ng"> 5678 pts/0 S+ 0:00 grep httpd <span class="row-label rl-ng">邪魔者！</span></div>
+  </div>
+  <div class="why-desc">
+    <strong>原因：</strong>grep コマンド自体がプロセスとして実行されており、そのプロセス名に「httpd」という文字列が含まれているため、grep が自分自身を結果に含めてしまう。
+  </div>
+</div>
+
+<!-- 選択肢を全部解剖 -->
+<div class="sec">選択肢5つを全部解剖する</div>
+<div class="cmd-list">
+
+  <div class="cmd-row cr-ng">
+    <div class="cmd-head">
+      <span class="cmd-code">ps ax | grep httpd | grep -E httpd</span>
+      <span class="cmd-badge cb-ng">× 不正解</span>
+    </div>
+    <div class="cmd-title">grep -E は「拡張正規表現」で同じ文字列を再検索するだけ</div>
+    <div class="cmd-desc"><code>-E</code> は拡張正規表現を使うオプション。httpd でフィルタした結果をさらに httpd でフィルタしても、grep プロセス自体は除去されない。問題の解決にならない。</div>
+  </div>
+
+  <div class="cmd-row cr-ok">
+    <div class="cmd-head">
+      <span class="cmd-code">ps ax | grep httpd | grep -v grep</span>
+      <span class="cmd-badge cb-ok">○ 正解</span>
+    </div>
+    <div class="cmd-title">grep -v で「grep という文字列を含む行」を除外する</div>
+    <div class="cmd-desc"><code>-v</code> は「マッチした行を除外（invert）」するオプション。<code>grep -v grep</code> で「grepという文字列を含む行＝grepプロセス自体」を取り除ける。シンプルで確実な定番の解決策。</div>
+  </div>
+
+  <div class="cmd-row cr-ng">
+    <div class="cmd-head">
+      <span class="cmd-code">egrep httpd</span>
+      <span class="cmd-badge cb-ng">× 不正解</span>
+    </div>
+    <div class="cmd-title">egrep は grep -E の別名、しかも ps の出力が渡されていない</div>
+    <div class="cmd-desc"><code>egrep</code> は拡張正規表現版のgrep。しかもこの書き方では <code>ps ax</code> の出力をパイプで受け取っていないため、プロセス一覧自体が渡されない。構造から間違い。</div>
+  </div>
+
+  <div class="cmd-row cr-ng">
+    <div class="cmd-head">
+      <span class="cmd-code">ps ax | grep -p httpd</span>
+      <span class="cmd-badge cb-ng">× 不正解</span>
+    </div>
+    <div class="cmd-title">grep に -p オプションは存在しない</div>
+    <div class="cmd-desc"><code>grep -p</code> というオプションは存在しない。<code>ps -p</code>（PIDで絞り込む）と混同させる引っかけ。架空のオプションなのでそもそも動かない。</div>
+  </div>
+
+  <div class="cmd-row cr-ok">
+    <div class="cmd-head">
+      <span class="cmd-code">pgrep httpd</span>
+      <span class="cmd-badge cb-ok">○ 正解</span>
+    </div>
+    <div class="cmd-title">pgrep は「プロセス名で検索」する専用コマンド</div>
+    <div class="cmd-desc"><code>p</code> = process の p。プロセス名で検索して PID だけ返す専用コマンドなので、grep プロセス自体が混入しない。<code>ps | grep</code> の組み合わせより洗練された書き方。</div>
+  </div>
+
+</div>
+
+<!-- パイプの流れ図 -->
+<div class="sec">正解2つの仕組みを図で見る</div>
+<div class="card">
+  <div class="card-label">解決策①：grep -v grep</div>
+  <div class="pipe-flow">
+    <div class="pf-row">
+      <div class="pf-box pf-ps">ps ax</div>
+      <span class="pf-arrow">→</span>
+      <div class="pf-box pf-grep">grep httpd</div>
+      <span class="pf-arrow">→</span>
+      <div class="pf-box pf-grepv">grep -v grep</div>
+    </div>
+    <div class="pf-result">全プロセス一覧 → httpd含む行だけ → grepという文字を含む行を除外 → 本物のhttpdだけ残る</div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-label">解決策②：pgrep（そもそもgrepを使わない）</div>
+  <div class="pgrep-box">
+    <div class="pgrep-title">pgrep = process + grep の専用コマンド</div>
+    <div style="font-size:12px;color:#5040b8;line-height:1.7;">プロセス名で直接検索してPIDだけ返す。<br>grep プロセス自体がリストに出ないので混入問題が起きない。</div>
+    <div class="pgrep-compare">
+      <div class="pc-old">
+        <div class="pc-label">古い書き方（問題あり）</div>
+        <div class="pc-cmd">ps ax | grep httpd</div>
+        <div class="pc-desc">grepプロセス自体が混入する</div>
+      </div>
+      <div class="pc-new">
+        <div class="pc-label">スッキリした書き方</div>
+        <div class="pc-cmd">pgrep httpd</div>
+        <div class="pc-desc">httpdのPIDだけ返る。混入なし。</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 理解度チェック -->
+<div class="sec">理解度チェック — 2問</div>
+<div class="card">
+
+  <!-- Q1 -->
+  <div style="font-size:10px;font-weight:700;color:#9b97c0;letter-spacing:.06em;margin-bottom:6px;">問 1 / 2</div>
+  <div class="q-sc">ps aux | grep nginx を実行したら、nginx のプロセス3件と grep nginx プロセス1件が表示された。</div>
+  <div class="q-text">grep プロセス自体を除外して nginx だけ表示するには？</div>
+  <div class="q-opts" id="q1opts">
+    <button class="qb" onclick="pick1(this,false)">ps aux | grep nginx | grep -E nginx</button>
+    <button class="qb" onclick="pick1(this,true)">ps aux | grep nginx | grep -v grep</button>
+    <button class="qb" onclick="pick1(this,false)">ps aux | grep -p nginx</button>
+    <button class="qb" onclick="pick1(this,true)">pgrep nginx</button>
+  </div>
+  <div style="font-size:11px;color:#9b97c0;margin-top:6px;">※ 複数選択</div>
+  <button class="check-btn" id="q1btn" onclick="check1()" disabled>確認する</button>
+  <div class="qr" id="q1r"></div>
+
+  <hr style="border:none;border-top:1px solid #e8e6f4;margin:18px 0;">
+
+  <!-- Q2 -->
+  <div style="font-size:10px;font-weight:700;color:#9b97c0;letter-spacing:.06em;margin-bottom:6px;">問 2 / 2</div>
+  <div class="q-text">grep -v オプションの意味として正しいのはどれか？</div>
+  <div class="q-opts" id="q2opts">
+    <button class="qb" onclick="pick2(this,false)">拡張正規表現を使って検索する</button>
+    <button class="qb" onclick="pick2(this,false)">PID番号で絞り込む</button>
+    <button class="qb" onclick="pick2(this,true)">マッチした行を除外（invert）する</button>
+    <button class="qb" onclick="pick2(this,false)">プロセス名で検索する専用オプション</button>
+  </div>
+  <div class="qr" id="q2r"></div>
+</div>
+
+<script>
+var q1sel=new Set();
+function pick1(btn,ok){
+  var t=btn.textContent;
+  if(q1sel.has(t)){q1sel.delete(t);btn.classList.remove('selected');}
+  else{q1sel.add(t);btn.classList.add('selected');}
+  document.getElementById('q1btn').disabled=q1sel.size===0;
+}
+function check1(){
+  var correct=['ps aux | grep nginx | grep -v grep','pgrep nginx'];
+  var btns=document.querySelectorAll('#q1opts .qb');
+  btns.forEach(function(b){
+    b.disabled=true;b.classList.remove('selected');
+    var isCorrect=correct.indexOf(b.textContent)>=0;
+    var picked=q1sel.has(b.textContent);
+    if(isCorrect)b.classList.add('ok');
+    else if(picked)b.classList.add('ng');
+  });
+  var allOk=correct.every(function(c){return q1sel.has(c);})&&q1sel.size===2;
+  var r=document.getElementById('q1r');
+  r.style.display='block';
+  r.className='qr '+(allOk?'qr-ok':'qr-ng');
+  r.textContent=allOk
+    ?'正解！ grep -v grep でgrepプロセスを除外する方法と、pgrep でそもそもgrepを使わない方法の2つが正解。'
+    :'grep -v grep（grepプロセスを除外）と pgrep nginx（専用コマンドで混入なし）が正解。grep -E は除外ではなく拡張正規表現、grep -p は存在しないオプション。';
+  document.getElementById('q1btn').disabled=true;
+}
+function pick2(btn,ok){
+  document.querySelectorAll('#q2opts .qb').forEach(function(b){b.disabled=true;});
+  btn.classList.add(ok?'ok':'ng');
+  if(!ok)document.querySelectorAll('#q2opts .qb')[2].classList.add('ok');
+  var r=document.getElementById('q2r');
+  r.style.display='block';
+  r.className='qr '+(ok?'qr-ok':'qr-ng');
+  r.textContent=ok
+    ?'正解！ -v は invert（反転）の v。マッチした行を「除外」する。grep -v grep で「grepという文字を含む行を除外」できる。'
+    :'正解は「マッチした行を除外する」。-v は invert の v。拡張正規表現は -E、PIDは ps -p、プロセス名検索の専用コマンドは pgrep。';
+}
+</script>
