@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linux パーミッション完全ガイド</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #f5f4fb;
+    color: #2d2a40;
+    font-family: 'Noto Sans JP', sans-serif;
+    padding: 24px 16px 48px;
+    line-height: 1.6;
+  }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+
+  /* ページタイトル */
+  .page-title {
+    text-align: center;
+    margin-bottom: 28px;
+  }
+  .page-title h1 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #3d3489;
+    margin-bottom: 4px;
+  }
+  .page-title p { font-size: 13px; color: #7b77a0; }
+
+  /* セクション見出し */
+  .section-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #7b77a0;
+    letter-spacing: .06em;
+    margin: 28px 0 10px;
+    padding-left: 4px;
+  }
+
+  /* 汎用カード */
+  .card {
+    background: #fff;
+    border-radius: 14px;
+    padding: 18px 20px;
+    margin-bottom: 10px;
+    border: 1px solid #e8e6f4;
+  }
+  .card-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #9b97c0;
+    letter-spacing: .06em;
+    margin-bottom: 10px;
+  }
+
+  /* ハイライトカード */
+  .card-pur { background: #eeedfe; border-color: #d0ccf8; }
+  .card-teal { background: #e5f8f2; border-color: #b8eadb; }
+  .card-amber { background: #fef6e8; border-color: #f5dea8; }
+  .card-pink { background: #fef0f4; border-color: #f5c8d8; }
+  .card-blue { background: #e8f4fe; border-color: #b8d8f8; }
+
+  /* rwx 3カラム */
+  .three-col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .rwx-card {
+    border-radius: 12px;
+    padding: 14px 10px;
+    text-align: center;
+  }
+  .rwx-r { background: #fde8ed; border: 1px solid #f5b8c8; }
+  .rwx-w { background: #fef4e0; border: 1px solid #f5d898; }
+  .rwx-x { background: #e5f8ee; border: 1px solid #a8e8c8; }
+  .rwx-letter { font-family: 'JetBrains Mono', monospace; font-size: 28px; font-weight: 700; line-height: 1; margin-bottom: 4px; }
+  .cl-r { color: #d0385a; }
+  .cl-w { color: #b87018; }
+  .cl-x { color: #1a8050; }
+  .cl-dash { color: #b0aac8; }
+  .rwx-word { font-size: 12px; font-weight: 700; margin-bottom: 3px; }
+  .rwx-ex { font-size: 11px; color: #7b77a0; line-height: 1.4; }
+
+  /* パーミッション文字列 */
+  .perm-str {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-align: center;
+    margin-bottom: 14px;
+  }
+
+  /* 3ブロック */
+  .block-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .pb {
+    border-radius: 12px;
+    padding: 12px 10px;
+    text-align: center;
+  }
+  .pb-owner { background: #f0ebfe; border: 1px solid #d4c8f8; }
+  .pb-group { background: #e5f4fe; border: 1px solid #b0d8f8; }
+  .pb-other { background: #fef0e5; border: 1px solid #f8d4b0; }
+  .pb-who {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 20px;
+    margin-bottom: 6px;
+  }
+  .pw-o { background: rgba(140,80,240,.15); color: #6a30c0; }
+  .pw-g { background: rgba(30,140,240,.15); color: #1060b0; }
+  .pw-ot { background: rgba(240,130,30,.15); color: #b05010; }
+  .pb-chars { font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+  .pb-desc { font-size: 11px; color: #7b77a0; line-height: 1.4; }
+
+  /* 数値変換 */
+  .octal-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px; }
+  .oct-card {
+    background: #f5f4fb;
+    border-radius: 10px;
+    padding: 12px 8px;
+    text-align: center;
+  }
+  .oct-num { font-family: 'JetBrains Mono', monospace; font-size: 24px; font-weight: 700; color: #5040b8; margin-bottom: 2px; }
+  .oct-rwx { font-family: 'JetBrains Mono', monospace; font-size: 13px; margin-bottom: 2px; }
+  .oct-desc { font-size: 11px; color: #9b97c0; }
+
+  /* コード行 */
+  .code-rows { display: flex; flex-direction: column; gap: 6px; }
+  .code-row {
+    background: #f5f4fb;
+    border-radius: 10px;
+    padding: 10px 14px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+    align-items: center;
+  }
+  .code-cmd { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #3d3489; }
+  .code-desc { font-size: 12px; color: #7b77a0; text-align: right; }
+
+  /* 記号モード表 */
+  .sym-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px; }
+  .sym-box { background: #f5f4fb; border-radius: 10px; padding: 12px; text-align: center; }
+  .sym-title { font-size: 10px; font-weight: 700; color: #9b97c0; letter-spacing: .05em; margin-bottom: 6px; }
+  .sym-items { font-family: 'JetBrains Mono', monospace; font-size: 12px; line-height: 1.9; }
+  .sym-u { color: #6a30c0; font-weight: 700; }
+  .sym-op { color: #b07010; font-weight: 700; }
+  .sym-p { color: #1a8050; font-weight: 700; }
+
+  /* テーブル */
+  .simple-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .simple-table th {
+    font-size: 11px;
+    font-weight: 700;
+    color: #9b97c0;
+    text-align: left;
+    padding: 6px 10px;
+    border-bottom: 1px solid #e8e6f4;
+  }
+  .simple-table td {
+    padding: 9px 10px;
+    border-bottom: 1px solid #f0eef8;
+    vertical-align: top;
+    color: #4a4668;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+  .simple-table tr:last-child td { border-bottom: none; }
+  .td-code { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #3d3489; }
+
+  /* 注意・ポイント行 */
+  .note-list { display: flex; flex-direction: column; gap: 8px; }
+  .note {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    background: #f5f4fb;
+    border-radius: 10px;
+    padding: 11px 14px;
+    border-left: 3px solid;
+  }
+  .note-warn { border-color: #f5b030; }
+  .note-tip  { border-color: #5dcaa5; }
+  .note-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+  .note-title { font-size: 13px; font-weight: 700; color: #2d2a40; margin-bottom: 2px; }
+  .note-body { font-size: 12px; color: #7b77a0; line-height: 1.6; }
+  .note-body code { font-family: 'JetBrains Mono', monospace; font-size: 11px; background: #eeedfe; color: #3d3489; padding: 1px 5px; border-radius: 4px; }
+
+  /* まとめグリッド */
+  .sum-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .sum-card { background: #fff; border-radius: 12px; padding: 14px; border: 1px solid #e8e6f4; }
+  .sum-card-title { font-size: 11px; font-weight: 700; color: #9b97c0; letter-spacing: .05em; margin-bottom: 8px; }
+  .sum-item { font-size: 12px; color: #4a4668; line-height: 1.7; }
+  .sum-item code { font-family: 'JetBrains Mono', monospace; font-size: 11px; background: #f0eef8; color: #3d3489; padding: 1px 5px; border-radius: 4px; }
+
+  /* ナビ */
+  .toc {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+  .toc a {
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 500;
+    color: #5040b8;
+    background: #eeedfe;
+    border-radius: 20px;
+    padding: 4px 12px;
+    border: 1px solid #d0ccf8;
+  }
+  .toc a:hover { background: #d8d5fc; }
+
+  @media (max-width: 480px) {
+    .sum-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page-title">
+  <h1>Linux パーミッション完全ガイド</h1>
+  <p>rwx の読み方 / chmod / chown</p>
+</div>
+
+<div class="toc">
+  <a href="#s1">rwx の意味</a>
+  <a href="#s2">3ブロック構造</a>
+  <a href="#s3">ls -l の読み方</a>
+  <a href="#s4">数値表現</a>
+  <a href="#s5">chmod</a>
+  <a href="#s6">chown / chgrp</a>
+  <a href="#s7">ディレクトリの rwx</a>
+  <a href="#s8">引っかけ対策</a>
+  <a href="#s9">まとめ</a>
+</div>
+
+<!-- S1 -->
+<div class="section-title" id="s1">01 / rwx が何を表すか</div>
+<div class="three-col">
+  <div class="rwx-card rwx-r">
+    <div class="rwx-letter cl-r">r</div>
+    <div class="rwx-word cl-r">read（読む）</div>
+    <div class="rwx-ex">中身を見られる<br>cat / less / cp の元</div>
+  </div>
+  <div class="rwx-card rwx-w">
+    <div class="rwx-letter cl-w">w</div>
+    <div class="rwx-word cl-w">write（書く）</div>
+    <div class="rwx-ex">内容を変更できる<br>vim / echo &gt; / rm</div>
+  </div>
+  <div class="rwx-card rwx-x">
+    <div class="rwx-letter cl-x">x</div>
+    <div class="rwx-word cl-x">execute（実行）</div>
+    <div class="rwx-ex">コマンドとして実行<br>スクリプト・バイナリ</div>
+  </div>
+</div>
+<div class="card" style="margin-top:10px;">
+  <span style="font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:700;color:#b0aac8;">「<span style="color:#b0aac8;">-</span>」= その権限がない</span>
+  &nbsp;&nbsp;
+  <span style="font-size:13px;color:#7b77a0;"><span style="font-family:'JetBrains Mono',monospace;color:#3d3489;">rw-</span> = 読み・書きOK、実行はNG</span>
+</div>
+
+<!-- S2 -->
+<div class="section-title" id="s2">02 / 3ブロック構造</div>
+<div class="card">
+  <div class="perm-str">
+    <span class="cl-dash">-</span><span style="color:#888;">|</span><span class="cl-r">r</span><span class="cl-w">w</span><span class="cl-dash">-</span><span style="color:#888;">|</span><span class="cl-r">r</span><span class="cl-dash">-</span><span class="cl-dash">-</span><span style="color:#888;">|</span><span class="cl-r">r</span><span class="cl-dash">-</span><span class="cl-dash">-</span>
+  </div>
+  <div class="block-row">
+    <div class="pb pb-owner">
+      <div class="pb-who pw-o">所有者</div>
+      <div class="pb-chars"><span class="cl-r">r</span><span class="cl-w">w</span><span class="cl-dash">-</span></div>
+      <div class="pb-desc">読み・書きOK<br>実行はできない</div>
+    </div>
+    <div class="pb pb-group">
+      <div class="pb-who pw-g">グループ</div>
+      <div class="pb-chars"><span class="cl-r">r</span><span class="cl-dash">-</span><span class="cl-dash">-</span></div>
+      <div class="pb-desc">読みだけ<br>書き・実行はNG</div>
+    </div>
+    <div class="pb pb-other">
+      <div class="pb-who pw-ot">その他</div>
+      <div class="pb-chars"><span class="cl-r">r</span><span class="cl-dash">-</span><span class="cl-dash">-</span></div>
+      <div class="pb-desc">読みだけ<br>書き・実行はNG</div>
+    </div>
+  </div>
+</div>
+
+<!-- S3 -->
+<div class="section-title" id="s3">03 / ls -l の出力を読む</div>
+<div class="card card-pur">
+  <div class="card-label">出力例</div>
+  <div style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#3d3489;background:#fff;border-radius:8px;padding:10px 14px;overflow-x:auto;white-space:nowrap;">
+    <span style="color:#5040b8;font-weight:700;">-rw-r--r--</span>
+    &nbsp;<span style="color:#b0aac8;">1</span>
+    &nbsp;<span style="color:#6a30c0;">test</span>
+    &nbsp;<span style="color:#1060b0;">staff</span>
+    &nbsp;<span style="color:#9b97c0;">24</span>
+    &nbsp;<span style="color:#b0aac8;">Jul 21 13:38</span>
+    &nbsp;<span style="color:#1a8050;">index.html</span>
+  </div>
+</div>
+<div class="card">
+  <table class="simple-table">
+    <tr><th>列</th><th>値</th><th>意味</th></tr>
+    <tr><td class="td-code">-rw-r--r--</td><td class="td-code" style="color:#5040b8;">パーミッション</td><td>先頭1文字が種別（- or d）、残り9文字が3ブロック</td></tr>
+    <tr><td class="td-code">1</td><td>ハードリンク数</td><td>このファイルへのリンクの数</td></tr>
+    <tr><td class="td-code" style="color:#6a30c0;">test</td><td>所有者</td><td>ファイルを作ったユーザ名</td></tr>
+    <tr><td class="td-code" style="color:#1060b0;">staff</td><td>グループ</td><td>所有グループ名（表示は1つだけ）</td></tr>
+    <tr><td class="td-code">24</td><td>サイズ</td><td>バイト単位（-h でKB/MB表示）</td></tr>
+    <tr><td class="td-code">Jul 21 13:38</td><td>更新日時</td><td>最終更新の月日・時刻</td></tr>
+    <tr><td class="td-code" style="color:#1a8050;">index.html</td><td>ファイル名</td><td>d から始まるパーミッションはディレクトリ</td></tr>
+  </table>
+</div>
+
+<!-- S4 -->
+<div class="section-title" id="s4">04 / 数値（8進数）表現</div>
+<div class="card card-pur">
+  <div class="card-label">r=4, w=2, x=1 の合計</div>
+  <div class="octal-row">
+    <div class="oct-card"><div class="oct-num">4</div><div class="oct-rwx"><span class="cl-r">r</span><span class="cl-dash">--</span></div><div class="oct-desc">読みのみ</div></div>
+    <div class="oct-card"><div class="oct-num">2</div><div class="oct-rwx"><span class="cl-dash">-</span><span class="cl-w">w</span><span class="cl-dash">-</span></div><div class="oct-desc">書きのみ</div></div>
+    <div class="oct-card"><div class="oct-num">1</div><div class="oct-rwx"><span class="cl-dash">--</span><span class="cl-x">x</span></div><div class="oct-desc">実行のみ</div></div>
+    <div class="oct-card"><div class="oct-num">6</div><div class="oct-rwx"><span class="cl-r">r</span><span class="cl-w">w</span><span class="cl-dash">-</span></div><div class="oct-desc">4+2</div></div>
+    <div class="oct-card"><div class="oct-num">5</div><div class="oct-rwx"><span class="cl-r">r</span><span class="cl-dash">-</span><span class="cl-x">x</span></div><div class="oct-desc">4+1</div></div>
+    <div class="oct-card"><div class="oct-num">7</div><div class="oct-rwx"><span class="cl-r">r</span><span class="cl-w">w</span><span class="cl-x">x</span></div><div class="oct-desc">4+2+1</div></div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-label">よく出る3桁パターン</div>
+  <table class="simple-table">
+    <tr><th>数値</th><th>記号</th><th>用途</th></tr>
+    <tr><td class="td-code">644</td><td class="td-code">rw-r--r--</td><td>Webファイルの標準（所有者のみ書ける）</td></tr>
+    <tr><td class="td-code">755</td><td class="td-code">rwxr-xr-x</td><td>スクリプト・ディレクトリの標準</td></tr>
+    <tr><td class="td-code">600</td><td class="td-code">rw-------</td><td>SSH秘密鍵（自分だけ読める）</td></tr>
+    <tr><td class="td-code">777</td><td class="td-code">rwxrwxrwx</td><td>全員が全操作可能（危険）</td></tr>
+    <tr><td class="td-code">000</td><td class="td-code">---------</td><td>誰も何もできない</td></tr>
+  </table>
+</div>
+
+<!-- S5 -->
+<div class="section-title" id="s5">05 / chmod — パーミッションを変更する</div>
+<div class="card">
+  <div class="card-label">数値モード</div>
+  <div class="code-rows">
+    <div class="code-row"><span class="code-cmd">chmod 644 index.html</span><span class="code-desc">rw-r--r-- に変更</span></div>
+    <div class="code-row"><span class="code-cmd">chmod 755 deploy.sh</span><span class="code-desc">rwxr-xr-x に変更</span></div>
+    <div class="code-row"><span class="code-cmd">chmod -R 755 /var/www/</span><span class="code-desc">ディレクトリを再帰的に変更</span></div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-label">記号モード — 対象 + 操作 + 権限</div>
+  <div class="sym-grid">
+    <div class="sym-box">
+      <div class="sym-title">対象（WHO）</div>
+      <div class="sym-items">
+        <span class="sym-u">u</span> = 所有者<br>
+        <span class="sym-u">g</span> = グループ<br>
+        <span class="sym-u">o</span> = その他<br>
+        <span class="sym-u">a</span> = 全員
+      </div>
+    </div>
+    <div class="sym-box">
+      <div class="sym-title">操作（OP）</div>
+      <div class="sym-items">
+        <span class="sym-op">+</span> = 追加<br>
+        <span class="sym-op">-</span> = 削除<br>
+        <span class="sym-op">=</span> = 上書き
+      </div>
+    </div>
+    <div class="sym-box">
+      <div class="sym-title">権限（PERM）</div>
+      <div class="sym-items">
+        <span class="sym-p">r</span> = 読み<br>
+        <span class="sym-p">w</span> = 書き<br>
+        <span class="sym-p">x</span> = 実行
+      </div>
+    </div>
+  </div>
+  <div class="code-rows">
+    <div class="code-row"><span class="code-cmd">chmod u+x script.sh</span><span class="code-desc">所有者に実行権限を追加</span></div>
+    <div class="code-row"><span class="code-cmd">chmod g-w file.txt</span><span class="code-desc">グループから書き込みを削除</span></div>
+    <div class="code-row"><span class="code-cmd">chmod o=r file.txt</span><span class="code-desc">その他を読みのみに上書き</span></div>
+    <div class="code-row"><span class="code-cmd">chmod a+r file.txt</span><span class="code-desc">全員に読み権限を追加</span></div>
+  </div>
+</div>
+
+<!-- S6 -->
+<div class="section-title" id="s6">06 / chown / chgrp — 所有者・グループを変更する</div>
+<div class="card">
+  <div class="card-label">chown（root権限が必要）</div>
+  <div class="code-rows">
+    <div class="code-row"><span class="code-cmd">chown alice file.txt</span><span class="code-desc">所有者を alice に変更</span></div>
+    <div class="code-row"><span class="code-cmd">chown alice:staff file.txt</span><span class="code-desc">所有者＋グループを変更</span></div>
+    <div class="code-row"><span class="code-cmd">chown :staff file.txt</span><span class="code-desc">グループだけ変更</span></div>
+    <div class="code-row"><span class="code-cmd">chown -R alice:staff /var/</span><span class="code-desc">再帰的に変更</span></div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-label">chgrp（グループだけ変える）</div>
+  <div class="code-rows">
+    <div class="code-row"><span class="code-cmd">chgrp dev file.txt</span><span class="code-desc">グループを dev に変更</span></div>
+    <div class="code-row"><span class="code-cmd">chgrp -R dev /project/</span><span class="code-desc">再帰的に変更</span></div>
+  </div>
+</div>
+
+<!-- S7 -->
+<div class="section-title" id="s7">07 / ディレクトリの rwx はファイルと意味が違う</div>
+<div class="card">
+  <table class="simple-table">
+    <tr><th>権限</th><th>ファイルへの意味</th><th>ディレクトリへの意味</th></tr>
+    <tr>
+      <td class="td-code cl-r">r</td>
+      <td>中身（内容）を読める</td>
+      <td>ls でファイル一覧を表示できる</td>
+    </tr>
+    <tr>
+      <td class="td-code cl-w">w</td>
+      <td>内容を書き換えられる</td>
+      <td>ファイルの作成・削除・名前変更ができる</td>
+    </tr>
+    <tr>
+      <td class="td-code cl-x">x</td>
+      <td>コマンドとして実行できる</td>
+      <td>cd で入れる（通行証）</td>
+    </tr>
+  </table>
+  <div class="note note-tip" style="margin-top:10px;">
+    <div class="note-icon">💡</div>
+    <div><div class="note-title">ディレクトリの x は「通行証」</div><div class="note-body">r があっても x がないと <code>cd</code> で入れない。x だけあると入れるが <code>ls</code> で一覧は見えない。</div></div>
+  </div>
+</div>
+
+<!-- S8 -->
+<div class="section-title" id="s8">08 / 試験でよくある引っかけ</div>
+<div class="note-list">
+  <div class="note note-warn">
+    <div class="note-icon">⚠</div>
+    <div><div class="note-title">グループ名と所有者を混同しやすい</div><div class="note-body"><code>test staff 24 ... index.html</code> → 所有者は <code>test</code>、グループは <code>staff</code>。「staffユーザが所有者」は誤り。</div></div>
+  </div>
+  <div class="note note-warn">
+    <div class="note-icon">⚠</div>
+    <div><div class="note-title">グループ欄の w を見落とす</div><div class="note-body"><code>rw-r--r--</code> のグループ欄は <code>r--</code>。w がないので書き込めない。「staffグループは書き込める」は誤り。</div></div>
+  </div>
+  <div class="note note-warn">
+    <div class="note-icon">⚠</div>
+    <div><div class="note-title">どの x 欄も見落とさない</div><div class="note-body">「誰でも実行できる」という選択肢は、3ブロック全ての x 欄を縦に確認してから判断する。</div></div>
+  </div>
+  <div class="note note-tip">
+    <div class="note-icon">💡</div>
+    <div><div class="note-title">「全て選択」問題の解き方</div><div class="note-body">各選択肢を「所有者・グループ・その他」の3ブロックで1つずつ検証する。誰のブロックが適用されるかを先に決めてから読む。</div></div>
+  </div>
+</div>
+
+<!-- S9 -->
+<div class="section-title" id="s9">09 / 試験直前まとめ</div>
+<div class="sum-grid">
+  <div class="sum-card">
+    <div class="sum-card-title">rwx の意味</div>
+    <div class="sum-item">
+      <code>r</code> = 読む（read）<br>
+      <code>w</code> = 書く（write）<br>
+      <code>x</code> = 実行（execute）<br>
+      <code>-</code> = 権限なし
+    </div>
+  </div>
+  <div class="sum-card">
+    <div class="sum-card-title">数値の対応</div>
+    <div class="sum-item">
+      r=4, w=2, x=1 の合計<br>
+      <code>644</code> = rw-r--r--<br>
+      <code>755</code> = rwxr-xr-x<br>
+      <code>600</code> = rw-------
+    </div>
+  </div>
+  <div class="sum-card">
+    <div class="sum-card-title">chmod</div>
+    <div class="sum-item">
+      数値: <code>chmod 644 file</code><br>
+      記号: <code>chmod u+x file</code><br>
+      再帰: <code>chmod -R 755 dir/</code>
+    </div>
+  </div>
+  <div class="sum-card">
+    <div class="sum-card-title">chown / chgrp</div>
+    <div class="sum-item">
+      <code>chown user file</code><br>
+      <code>chown user:group file</code><br>
+      <code>chgrp group file</code><br>
+      ※ chown は root 権限が必要
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

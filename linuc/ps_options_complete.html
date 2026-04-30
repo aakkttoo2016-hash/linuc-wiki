@@ -1,0 +1,340 @@
+
+<style>
+  .w{padding:1rem 0;font-family:var(--font-sans);}
+  .sl{font-size:11px;font-weight:500;color:var(--color-text-secondary);letter-spacing:.06em;margin:0 0 10px;}
+  .card{background:var(--color-background-primary);border:.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:16px 18px;margin-bottom:12px;}
+  .tab-row{display:flex;gap:6px;margin-bottom:16px;}
+  .tab{padding:7px 14px;border-radius:var(--border-radius-md);font-size:13px;font-weight:500;cursor:pointer;border:.5px solid var(--color-border-secondary);color:var(--color-text-secondary);background:var(--color-background-primary);}
+  .tab.active{background:#EEEDFE;border-color:#AFA9EC;color:#3C3489;}
+  .panel{display:none;}
+  .panel.active{display:block;}
+
+  /* 暗記法パネル */
+  .mem-hero{background:#EEEDFE;border-radius:var(--border-radius-lg);padding:16px 18px;margin-bottom:14px;text-align:center;}
+  .mem-title{font-size:12px;color:#534AB7;margin-bottom:8px;font-weight:500;}
+  .mem-formula{font-size:22px;font-weight:500;color:#3C3489;font-family:var(--font-mono);line-height:1.6;}
+  .mem-sub{font-size:12px;color:#534AB7;margin-top:6px;}
+  .mem-cards{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;}
+  .mc{border-radius:var(--border-radius-md);padding:12px 14px;}
+  .mc-aux{background:#FAEEDA;border:.5px solid #EF9F27;}
+  .mc-ef{background:#E1F5EE;border:.5px solid #5DCAA5;}
+  .mc-head{font-size:13px;font-weight:500;margin-bottom:6px;font-family:var(--font-mono);}
+  .mch-aux{color:#633806;} .mch-ef{color:#085041;}
+  .mc-story{font-size:12px;line-height:1.7;}
+  .mcs-aux{color:#633806;} .mcs-ef{color:#085041;}
+  .forget-box{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:12px 14px;}
+  .forget-title{font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:6px;}
+  .forget-row{display:flex;align-items:flex-start;gap:8px;font-size:12px;color:var(--color-text-secondary);line-height:1.6;margin-bottom:4px;}
+
+  /* オプション一覧パネル */
+  .group-label{font-size:12px;font-weight:500;color:var(--color-text-secondary);margin-bottom:8px;padding-left:2px;}
+  .opt-rows{display:flex;flex-direction:column;gap:5px;margin-bottom:14px;}
+  .or{display:grid;grid-template-columns:48px 1fr;gap:10px;padding:10px 12px;border-radius:var(--border-radius-md);border:.5px solid var(--color-border-tertiary);align-items:start;}
+  .or-core{background:#EEEDFE;border-color:#AFA9EC;}
+  .or-detail{background:#E1F5EE;border-color:#5DCAA5;}
+  .or-tree{background:#FAEEDA;border-color:#EF9F27;}
+  .or-filter{background:#FBEAF0;border-color:#D98BAD;}
+  .or-normal{background:var(--color-background-secondary);}
+  .opt-key{font-family:var(--font-mono);font-size:16px;font-weight:500;text-align:center;padding-top:1px;}
+  .ok-core{color:#3C3489;} .ok-detail{color:#085041;} .ok-tree{color:#633806;} .ok-filter{color:#8B3A6B;} .ok-normal{color:var(--color-text-secondary);}
+  .opt-body{}
+  .opt-name{font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:2px;}
+  .opt-desc{font-size:12px;color:var(--color-text-secondary);line-height:1.5;}
+  .imp-badge{display:inline-block;font-size:10px;font-weight:500;padding:1px 6px;border-radius:10px;margin-left:6px;}
+  .ib-must{background:#534AB7;color:#EEEDFE;}
+  .ib-often{background:#0F6E56;color:#E1F5EE;}
+
+  /* 出力読み方パネル */
+  .output-box{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:12px 14px;font-family:var(--font-mono);font-size:12px;margin-bottom:14px;overflow-x:auto;}
+  .o-head{color:var(--color-text-secondary);margin-bottom:6px;}
+  .o-row{color:var(--color-text-primary);margin-bottom:3px;}
+  .col-cards{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;}
+  .col-card{border-radius:var(--border-radius-md);padding:10px 12px;background:var(--color-background-secondary);}
+  .col-name{font-size:12px;font-weight:500;color:var(--color-text-primary);font-family:var(--font-mono);margin-bottom:3px;}
+  .col-desc{font-size:11px;color:var(--color-text-secondary);line-height:1.5;}
+
+  /* クイズパネル */
+  .qz-text{font-size:14px;font-weight:500;color:var(--color-text-primary);margin-bottom:10px;line-height:1.6;}
+  .qz-sc{font-size:12px;color:var(--color-text-secondary);background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:8px 12px;margin-bottom:12px;font-family:var(--font-mono);}
+  .qz-opts{display:flex;flex-direction:column;gap:6px;margin-bottom:8px;}
+  .qb{background:var(--color-background-primary);border:.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:10px 14px;font-size:13px;font-family:var(--font-mono);color:var(--color-text-primary);cursor:pointer;text-align:left;}
+  .qb:hover:not(:disabled){background:var(--color-background-secondary);}
+  .qb.ok{background:#E1F5EE;border-color:#5DCAA5;color:#085041;}
+  .qb.ng{background:#FAECE7;border-color:#F0997B;color:#712B13;}
+  .qr{font-size:13px;padding:10px 14px;border-radius:var(--border-radius-md);display:none;line-height:1.7;margin-bottom:10px;}
+  .qr-ok{background:#E1F5EE;color:#085041;}
+  .qr-ng{background:#FAECE7;color:#712B13;}
+  .qnxt{background:var(--color-background-primary);border:.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:9px 20px;font-size:13px;color:var(--color-text-primary);cursor:pointer;display:none;}
+  .qnxt:hover{background:var(--color-background-secondary);}
+</style>
+
+<div class="w">
+  <div class="tab-row">
+    <button class="tab active" onclick="showTab('mem')">まず覚え方</button>
+    <button class="tab" onclick="showTab('opts')">オプション一覧</button>
+    <button class="tab" onclick="showTab('read')">出力の読み方</button>
+    <button class="tab" onclick="showTab('quiz')">確認クイズ</button>
+  </div>
+
+  <!-- 覚え方 -->
+  <div class="panel active" id="p-mem">
+    <div class="mem-hero">
+      <div class="mem-title">これだけ覚えればいい — 黄金の2パターン</div>
+      <div class="mem-formula">ps aux<br>ps -ef</div>
+      <div class="mem-sub">この2つは「全プロセスを詳しく表示」で同じ意味。どちらも正解になる。</div>
+    </div>
+
+    <div class="mem-cards">
+      <div class="mc mc-aux">
+        <div class="mc-head mch-aux">ps aux</div>
+        <div class="mc-story mcs-aux">
+          <strong>a</strong> = All users（全員の）<br>
+          <strong>u</strong> = User name（名前も出す）<br>
+          <strong>x</strong> = eXtra（端末なしも）<br><br>
+          「<strong>全員の・名前付きで・全部</strong>」と唱える
+        </div>
+      </div>
+      <div class="mc mc-ef">
+        <div class="mc-head mch-ef">ps -ef</div>
+        <div class="mc-story mcs-ef">
+          <strong>-e</strong> = Everything（全部）<br>
+          <strong>-f</strong> = Full format（詳しく）<br><br>
+          「<strong>全部・詳しく</strong>」と唱える<br><br>
+          ハイフンあり = System V流
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="sl" style="margin-bottom:8px;">「a だけ」「x だけ」が正解にならない理由</div>
+      <div class="forget-box">
+        <div class="forget-row"><span>⚠</span><span><strong>a だけ</strong>：他ユーザのプロセスも見えるが、端末なし（バックグラウンドのデーモン等）は見えない → 全部じゃない</span></div>
+        <div class="forget-row"><span>⚠</span><span><strong>x だけ</strong>：端末なしも見えるが、自分のプロセスだけ → 全部じゃない</span></div>
+        <div class="forget-row"><span>✅</span><span><strong>a + x</strong>：「全ユーザ」＋「端末なしも」= 初めて全プロセスになる</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="sl" style="margin-bottom:8px;">研修での実物と結びつける</div>
+      <div style="font-size:13px;color:var(--color-text-secondary);line-height:1.8;">
+        研修サーバで <code style="font-family:var(--font-mono);font-size:12px;background:var(--color-background-secondary);padding:1px 5px;border-radius:3px;">ps aux | grep nginx</code> のように使ったことがあれば、それが「全プロセスを見てnginxだけ絞り込む」という意味だったとわかります。<br><br>
+        <code style="font-family:var(--font-mono);font-size:12px;background:var(--color-background-secondary);padding:1px 5px;border-radius:3px;">ps aux</code> → まず全員見渡す<br>
+        <code style="font-family:var(--font-mono);font-size:12px;background:var(--color-background-secondary);padding:1px 5px;border-radius:3px;">| grep 名前</code> → そこから探す<br><br>
+        この流れが体に入っていれば <strong>ps aux は永遠に忘れない</strong>。
+      </div>
+    </div>
+  </div>
+
+  <!-- オプション一覧 -->
+  <div class="panel" id="p-opts">
+    <div class="group-label">● 絶対に覚える（試験頻出）</div>
+    <div class="opt-rows">
+      <div class="or or-core">
+        <div class="opt-key ok-core">a</div>
+        <div class="opt-body">
+          <div class="opt-name">全ユーザのプロセスを表示<span class="imp-badge ib-must">必須</span></div>
+          <div class="opt-desc">BSD流。自分以外のユーザのプロセスも見える。ただし端末ありのみ。x と組み合わせて初めて「全部」になる。</div>
+        </div>
+      </div>
+      <div class="or or-core">
+        <div class="opt-key ok-core">x</div>
+        <div class="opt-body">
+          <div class="opt-name">端末なしのプロセスも表示<span class="imp-badge ib-must">必須</span></div>
+          <div class="opt-desc">BSD流。デーモンなど端末に紐づいていないプロセスも表示。a と組み合わせると全プロセスになる。</div>
+        </div>
+      </div>
+      <div class="or or-core">
+        <div class="opt-key ok-core">u</div>
+        <div class="opt-body">
+          <div class="opt-name">ユーザ名・CPU・メモリも表示<span class="imp-badge ib-must">必須</span></div>
+          <div class="opt-desc">BSD流。実行ユーザ名、CPU使用率(%CPU)、メモリ使用率(%MEM)が追加表示される。ps aux の u これ。</div>
+        </div>
+      </div>
+      <div class="or or-core">
+        <div class="opt-key ok-core">-e</div>
+        <div class="opt-body">
+          <div class="opt-name">全プロセスを表示<span class="imp-badge ib-must">必須</span></div>
+          <div class="opt-desc">System V流。a+x と同じ効果。ハイフンあり。ps -ef の e これ。</div>
+        </div>
+      </div>
+      <div class="or or-core">
+        <div class="opt-key ok-core">-f</div>
+        <div class="opt-body">
+          <div class="opt-name">フルフォーマットで表示<span class="imp-badge ib-must">必須</span></div>
+          <div class="opt-desc">System V流。UID・PID・PPID・コマンド名などを詳細表示。BSD の f（ツリー表示）とは別物！</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="group-label">● 覚えておくと得（試験に出る）</div>
+    <div class="opt-rows">
+      <div class="or or-detail">
+        <div class="opt-key ok-detail">f</div>
+        <div class="opt-body">
+          <div class="opt-name">プロセスをツリー表示<span class="imp-badge ib-often">頻出</span></div>
+          <div class="opt-desc">BSD流（ハイフンなし）。親子関係を線で表示。-f（フォーマット）と名前が同じで紛らわしいが別物。</div>
+        </div>
+      </div>
+      <div class="or or-detail">
+        <div class="opt-key ok-detail">-l</div>
+        <div class="opt-body">
+          <div class="opt-name">長い形式で表示<span class="imp-badge ib-often">頻出</span></div>
+          <div class="opt-desc">System V流。優先度(PRI・NI)やプロセス状態(S)なども表示。</div>
+        </div>
+      </div>
+      <div class="or or-filter">
+        <div class="opt-key ok-filter">-u</div>
+        <div class="opt-body">
+          <div class="opt-name">特定ユーザのプロセスだけ表示</div>
+          <div class="opt-desc">System V流。ps -u root でrootのプロセスだけ。BSD の u（表示形式）と別物なので注意。</div>
+        </div>
+      </div>
+      <div class="or or-filter">
+        <div class="opt-key ok-filter">-p</div>
+        <div class="opt-body">
+          <div class="opt-name">特定PIDのプロセスを表示</div>
+          <div class="opt-desc">ps -p 1234 で PID 1234 のプロセスだけ表示。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 出力の読み方 -->
+  <div class="panel" id="p-read">
+    <div class="output-box">
+      <div class="o-head">USER       PID  %CPU  %MEM    VSZ   RSS TTY   STAT START   TIME COMMAND</div>
+      <div class="o-row">root         1   0.0   0.1  16952  1876 ?     Ss   09:00   0:01 /sbin/init</div>
+      <div class="o-row">www-data   842   0.3   1.2  85432 12340 ?     S    09:01   0:12 nginx: worker</div>
+      <div class="o-row">alice     1203   0.0   0.2  21000  2048 pts/0 Ss   10:30   0:00 bash</div>
+      <div class="o-row">alice     1892   0.0   0.1  10856  1024 pts/0 R+   10:45   0:00 ps aux</div>
+    </div>
+    <div class="col-cards">
+      <div class="col-card">
+        <div class="col-name">USER</div>
+        <div class="col-desc">実行しているユーザ名</div>
+      </div>
+      <div class="col-card">
+        <div class="col-name">PID</div>
+        <div class="col-desc">プロセスID。kill するときに使う番号</div>
+      </div>
+      <div class="col-card">
+        <div class="col-name">%CPU / %MEM</div>
+        <div class="col-desc">CPU・メモリの使用率。重いプロセスを探すとき見る</div>
+      </div>
+      <div class="col-card">
+        <div class="col-name">TTY</div>
+        <div class="col-desc">端末名。? はデーモン（端末なし）</div>
+      </div>
+      <div class="col-card">
+        <div class="col-name">STAT</div>
+        <div class="col-desc">R=実行中 S=待機 D=I/O待ち Z=ゾンビ T=停止</div>
+      </div>
+      <div class="col-card">
+        <div class="col-name">COMMAND</div>
+        <div class="col-desc">実行中のコマンド名・引数</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- クイズ -->
+  <div class="panel" id="p-quiz">
+    <div id="qarea"></div>
+  </div>
+</div>
+
+<script>
+function showTab(id){
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});
+  document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active');});
+  event.target.classList.add('active');
+  document.getElementById('p-'+id).classList.add('active');
+  if(id==='quiz' && !window.qInit){initQuiz();window.qInit=true;}
+}
+
+var quizzes=[
+  {
+    q:"全プロセスをユーザ名付きで表示するコマンドを2つ選べ",
+    sc:"",
+    opts:["ps a","ps aux","ps x","ps -ef","ps f"],
+    corrects:[1,3],
+    ok:"正解！ ps aux（BSD流：全ユーザ+名前付き+端末なしも）と ps -ef（System V流：全プロセス+詳細）の2つが「全プロセス表示」の黄金パターン。",
+    ng:"ps aux と ps -ef が正解。a だけ・x だけ・f だけはどれも全プロセスにならない。"
+  },
+  {
+    q:"ps -f の -f オプションの意味はどれか",
+    sc:"",
+    opts:["プロセスをツリー表示する","フルフォーマット（詳細）で表示する","フィルタリングして表示する","フォアグラウンドのプロセスだけ表示する"],
+    corrects:[1],
+    ok:"正解！ -f（ハイフンあり）= フルフォーマット表示。ハイフンなしの f（BSD流）= ツリー表示、と別物なので注意。",
+    ng:"-f（ハイフンあり、System V流）はフルフォーマット表示。ハイフンなし f（BSD流）のツリー表示と混同しやすいポイント。"
+  },
+  {
+    q:"ps aux の出力で TTY列が「?」のプロセスは何を意味するか",
+    sc:"USER       PID  %CPU %MEM TTY   STAT COMMAND\nroot       842   0.0  0.3  ?     Ss   nginx",
+    opts:["端末が不明でエラーが発生している","端末に紐づいていないデーモンプロセス","一時停止中のプロセス","ゾンビプロセス"],
+    corrects:[1],
+    ok:"正解！ TTY の ? は「端末なし」= デーモンやバックグラウンドサービスのプロセス。nginx・sshd などのサービスはほぼ全部 ? になる。",
+    ng:"TTY の ? は端末に紐づいていないプロセス（デーモン）を意味する。x オプションで表示できるプロセスがまさにこれ。"
+  }
+];
+
+var qcur=0,selected=[];
+function initQuiz(){renderQ(0);}
+
+function renderQ(i){
+  var q=quizzes[i];
+  selected=[];
+  var multi=q.corrects.length>1;
+  var h='<div class="card">';
+  h+='<div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:6px;">問 '+(i+1)+' / '+quizzes.length+(multi?' （複数選択）':'')+'</div>';
+  h+='<div class="qz-text">'+q.q+'</div>';
+  if(q.sc) h+='<div class="qz-sc">'+q.sc+'</div>';
+  h+='<div class="qz-opts">';
+  q.opts.forEach(function(o,j){h+='<button class="qb" id="qb'+j+'" onclick="pick('+j+','+multi+')">'+o+'</button>';});
+  h+='</div>';
+  if(multi) h+='<button class="qnxt" id="check-btn" onclick="checkMulti()" style="display:block;margin-bottom:8px;">確認する</button>';
+  h+='<div class="qr" id="qr"></div>';
+  h+='<button class="qnxt" id="nxt-btn" onclick="nextQ()">'+(i<quizzes.length-1?'次の問題へ →':'もう一度最初から')+'</button>';
+  h+='</div>';
+  document.getElementById('qarea').innerHTML=h;
+}
+
+function pick(j,multi){
+  if(!multi){
+    document.querySelectorAll('.qb').forEach(function(b){b.disabled=true;});
+    var q=quizzes[qcur];
+    var ok=q.corrects.indexOf(j)>=0;
+    document.getElementById('qb'+j).classList.add(ok?'ok':'ng');
+    if(!ok) document.getElementById('qb'+q.corrects[0]).classList.add('ok');
+    showResult(ok,q);
+  } else {
+    var btn=document.getElementById('qb'+j);
+    var idx=selected.indexOf(j);
+    if(idx>=0){selected.splice(idx,1);btn.style.outline='';btn.style.fontWeight='';}
+    else{selected.push(j);btn.style.outline='2px solid #534AB7';btn.style.fontWeight='500';}
+  }
+}
+
+function checkMulti(){
+  var q=quizzes[qcur];
+  document.querySelectorAll('.qb').forEach(function(b){b.disabled=true;b.style.outline='';b.style.fontWeight='';});
+  var ok=selected.length===q.corrects.length && q.corrects.every(function(c){return selected.indexOf(c)>=0;});
+  selected.forEach(function(j){document.getElementById('qb'+j).classList.add(q.corrects.indexOf(j)>=0?'ok':'ng');});
+  q.corrects.forEach(function(c){document.getElementById('qb'+c).classList.add('ok');});
+  document.getElementById('check-btn').style.display='none';
+  showResult(ok,q);
+}
+
+function showResult(ok,q){
+  var r=document.getElementById('qr');
+  r.style.display='block';
+  r.className='qr '+(ok?'qr-ok':'qr-ng');
+  r.textContent=ok?q.ok:q.ng;
+  document.getElementById('nxt-btn').style.display='block';
+}
+
+function nextQ(){
+  qcur=(qcur+1)%quizzes.length;
+  renderQ(qcur);
+}
+</script>
