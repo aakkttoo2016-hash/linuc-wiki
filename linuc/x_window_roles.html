@@ -1,0 +1,249 @@
+
+<style>
+  .w{padding:1rem 0;font-family:var(--font-sans);}
+  .sl{font-size:11px;font-weight:500;color:var(--color-text-secondary);letter-spacing:.06em;margin:0 0 10px;}
+  .card{background:var(--color-background-primary);border:.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:16px 18px;margin-bottom:12px;}
+
+  /* 層構造図 */
+  .layers{display:flex;flex-direction:column;gap:4px;margin-bottom:12px;}
+  .layer{border-radius:var(--border-radius-md);padding:12px 16px;cursor:pointer;transition:opacity .15s;}
+  .layer:hover{opacity:.85;}
+  .l-app{background:#EEEDFE;border:.5px solid #AFA9EC;}
+  .l-wm {background:#E1F5EE;border:.5px solid #5DCAA5;}
+  .l-de {background:#FAEEDA;border:.5px solid #EF9F27;}
+  .l-dm {background:#FBEAF0;border:.5px solid #D98BAD;}
+  .l-xs {background:#E6F1FB;border:.5px solid #7BAED4;}
+  .l-hw {background:#F1EFE8;border:.5px solid #B4B2A9;}
+  .layer-head{display:flex;align-items:center;gap:10px;}
+  .l-icon{font-size:18px;flex-shrink:0;}
+  .l-name{font-size:14px;font-weight:500;color:var(--color-text-primary);}
+  .l-eg{font-size:11px;color:var(--color-text-secondary);margin-left:auto;}
+  .l-detail{font-size:12px;color:var(--color-text-secondary);margin-top:6px;line-height:1.5;display:none;}
+  .l-detail.open{display:block;}
+  .layer-arrow{text-align:center;font-size:14px;color:var(--color-text-tertiary);}
+
+  /* 役割カード */
+  .role-grid{display:flex;flex-direction:column;gap:8px;}
+  .role-card{border-radius:var(--border-radius-md);padding:12px 14px;border:.5px solid var(--color-border-tertiary);}
+  .rc-app{background:#EEEDFE;border-color:#AFA9EC;}
+  .rc-wm {background:#E1F5EE;border-color:#5DCAA5;}
+  .rc-de {background:#FAEEDA;border-color:#EF9F27;}
+  .rc-dm {background:#FBEAF0;border-color:#D98BAD;}
+  .rc-xs {background:#E6F1FB;border-color:#7BAED4;}
+  .role-head{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+  .role-badge{font-size:11px;font-weight:500;padding:3px 10px;border-radius:20px;}
+  .rb-app{background:#534AB7;color:#EEEDFE;}
+  .rb-wm {background:#0F6E56;color:#E1F5EE;}
+  .rb-de {background:#854F0B;color:#FAEEDA;}
+  .rb-dm {background:#8B3A6B;color:#FBEAF0;}
+  .rb-xs {background:#1A5C8A;color:#E6F1FB;}
+  .role-title{font-size:13px;font-weight:500;color:var(--color-text-primary);}
+  .role-body{font-size:12px;color:var(--color-text-secondary);line-height:1.6;}
+  .role-eg{font-size:11px;margin-top:4px;}
+  code{font-family:var(--font-mono);font-size:11px;background:rgba(0,0,0,.06);padding:1px 5px;border-radius:3px;}
+
+  /* 問題解説 */
+  .choice-list{display:flex;flex-direction:column;gap:6px;}
+  .choice{display:grid;grid-template-columns:24px 1fr 64px;align-items:start;gap:8px;padding:9px 12px;border-radius:var(--border-radius-md);border:.5px solid var(--color-border-tertiary);}
+  .ch-ok{background:#E1F5EE;border-color:#5DCAA5;}
+  .ch-ng{background:#FAECE7;border-color:#F0997B;}
+  .ch-no{background:#F1EFE8;border-color:#B4B2A9;}
+  .ch-num{font-size:12px;font-weight:500;color:var(--color-text-secondary);padding-top:1px;}
+  .ch-text{font-size:12px;color:var(--color-text-primary);line-height:1.5;}
+  .ch-who{font-size:11px;color:var(--color-text-secondary);margin-top:3px;}
+  .ch-badge{font-size:11px;font-weight:500;padding:2px 8px;border-radius:20px;text-align:center;white-space:nowrap;}
+  .cb-ok{background:#0F6E56;color:#E1F5EE;}
+  .cb-ng{background:#993C1D;color:#FAECE7;}
+  .cb-no{background:#5F5E5A;color:#F1EFE8;}
+
+  /* 混乱ポイント */
+  .conf-list{display:flex;flex-direction:column;gap:8px;}
+  .conf{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px 14px;display:flex;gap:10px;align-items:flex-start;}
+  .conf-icon{font-size:14px;flex-shrink:0;margin-top:1px;}
+  .conf-body{font-size:12px;color:var(--color-text-primary);line-height:1.6;}
+  .conf-em{font-weight:500;color:var(--color-text-primary);}
+
+  .key-box{background:#EEEDFE;border-radius:var(--border-radius-md);padding:12px 14px;margin-top:4px;}
+  .key-text{font-size:13px;color:#3C3489;line-height:1.8;}
+</style>
+
+<div class="w">
+  <h2 class="sr-only">Xウィンドウ周辺の登場人物と役割分担</h2>
+
+  <p class="sl">登場人物を「層」で理解する — タップで詳細表示</p>
+  <div class="card">
+    <div class="layers">
+      <div class="layer l-app" onclick="toggle('app')">
+        <div class="layer-head">
+          <span class="l-icon">🖥</span>
+          <span class="l-name">アプリケーション</span>
+          <span class="l-eg">Firefox / LibreOffice …</span>
+        </div>
+        <div class="l-detail" id="app">GUIアプリ本体。Xサーバに「ここにボタン描いて」と依頼する側。自分では画面を描かない。</div>
+      </div>
+      <div class="layer-arrow">↓ 画面描画をお願い</div>
+      <div class="layer l-wm" onclick="toggle('wm')">
+        <div class="layer-head">
+          <span class="l-icon">🪟</span>
+          <span class="l-name">ウィンドウマネージャ</span>
+          <span class="l-eg">Openbox / Mutter …</span>
+        </div>
+        <div class="l-detail" id="wm">ウィンドウの「タイトルバー・枠・最小化ボタン」などの見た目を管理。ウィンドウを動かしたり重ねたりする係。</div>
+      </div>
+      <div class="layer-arrow">↓ 含まれる</div>
+      <div class="layer l-de" onclick="toggle('de')">
+        <div class="layer-head">
+          <span class="l-icon">🏠</span>
+          <span class="l-name">デスクトップ環境</span>
+          <span class="l-eg">GNOME / KDE / Xfce …</span>
+        </div>
+        <div class="l-detail" id="de">WM＋ファイルマネージャ＋パネル＋設定ツールなどをまとめたセット。「部屋ごと」用意してくれるイメージ。</div>
+      </div>
+      <div class="layer-arrow">↓ 起動・ログイン管理</div>
+      <div class="layer l-dm" onclick="toggle('dm')">
+        <div class="layer-head">
+          <span class="l-icon">🔐</span>
+          <span class="l-name">ディスプレイマネージャ</span>
+          <span class="l-eg">GDM / LightDM / SDDM …</span>
+        </div>
+        <div class="l-detail" id="dm">GUIのログイン画面を表示して、ユーザ認証後にデスクトップ環境を起動する係。systemdに起動してもらう。</div>
+      </div>
+      <div class="layer-arrow">↓ 画面出力の基盤</div>
+      <div class="layer l-xs" onclick="toggle('xs')">
+        <div class="layer-head">
+          <span class="l-icon">⚙️</span>
+          <span class="l-name">Xサーバ</span>
+          <span class="l-eg">X.Org Server …</span>
+        </div>
+        <div class="l-detail" id="xs">モニタ・キーボード・マウスなどハードウェアを直接管理する基盤。アプリからの描画依頼を受けて実際に画面に出力する。</div>
+      </div>
+      <div class="layer-arrow">↓ 制御</div>
+      <div class="layer l-hw" onclick="toggle('hw')">
+        <div class="layer-head">
+          <span class="l-icon">🖱</span>
+          <span class="l-name">ハードウェア</span>
+          <span class="l-eg">モニタ / キーボード / マウス</span>
+        </div>
+        <div class="l-detail" id="hw">物理デバイス本体。Xサーバが橋渡しして、アプリやWMが間接的に操作できるようにする。</div>
+      </div>
+    </div>
+  </div>
+
+  <p class="sl">各役割をひとことで</p>
+  <div class="card">
+    <div class="role-grid">
+      <div class="role-card rc-xs">
+        <div class="role-head"><span class="role-badge rb-xs">Xサーバ</span></div>
+        <div class="role-body">ハードウェア（画面・マウス・キーボード）を管理する「土台」。アプリの描画依頼を受けて実際に画面へ出力する。<br><span class="role-eg">→ 大工さんが「基礎工事」を担当するイメージ</span></div>
+      </div>
+      <div class="role-card rc-wm">
+        <div class="role-head"><span class="role-badge rb-wm">ウィンドウマネージャ</span></div>
+        <div class="role-body">ウィンドウの枠・タイトルバー・見た目・重なり順を管理。<code>Openbox</code> <code>Mutter</code> など。<br><span class="role-eg">→ 「部屋の仕切り係」。どこに何の窓を置くか決める</span></div>
+      </div>
+      <div class="role-card rc-de">
+        <div class="role-head"><span class="role-badge rb-de">デスクトップ環境</span></div>
+        <div class="role-body">WM＋アイコン＋メニュー＋パネルなどをまとめたフルセット。<code>GNOME</code> <code>KDE</code> など。<br><span class="role-eg">→ 「家具付き部屋ごと」提供するイメージ</span></div>
+      </div>
+      <div class="role-card rc-dm">
+        <div class="role-head"><span class="role-badge rb-dm">ディスプレイマネージャ</span></div>
+        <div class="role-body">GUIログイン画面を表示し、認証後にデスクトップ環境を起動する。<code>GDM</code> <code>LightDM</code> など。systemd に起動してもらう。<br><span class="role-eg">→ 「受付・警備員」。入口でIDを確認して部屋に案内する</span></div>
+      </div>
+    </div>
+  </div>
+
+  <p class="sl">問題の選択肢を全部解剖する</p>
+  <div class="card">
+    <div class="choice-list">
+      <div class="choice ch-ok">
+        <div class="ch-num">①</div>
+        <div>
+          <div class="ch-text">デスクトップ環境を準備する</div>
+          <div class="ch-who">→ ログイン後にDEを起動するのはDMの仕事</div>
+        </div>
+        <div class="ch-badge cb-ok">○ 正解</div>
+      </div>
+      <div class="choice ch-ok">
+        <div class="ch-num">②</div>
+        <div>
+          <div class="ch-text">ユーザにGUI環境のログインを提供する</div>
+          <div class="ch-who">→ GUIログイン画面 = DMの代表的な仕事</div>
+        </div>
+        <div class="ch-badge cb-ok">○ 正解</div>
+      </div>
+      <div class="choice ch-ng">
+        <div class="ch-num">③</div>
+        <div>
+          <div class="ch-text">処理した結果をXサーバを介してウィンドウに表示させる</div>
+          <div class="ch-who">→ これはアプリケーションの仕事。DMは描画しない</div>
+        </div>
+        <div class="ch-badge cb-ng">× 不正解</div>
+      </div>
+      <div class="choice ch-ok">
+        <div class="ch-num">④</div>
+        <div>
+          <div class="ch-text">initやsystemdによりDMサービスが起動される</div>
+          <div class="ch-who">→ DMはsystemdのサービスとして起動される。正しい</div>
+        </div>
+        <div class="ch-badge cb-ok">○ 正解</div>
+      </div>
+      <div class="choice ch-ng">
+        <div class="ch-num">⑤</div>
+        <div>
+          <div class="ch-text">ウィンドウの概観、アイコンやカーソル、メニューなどを提供する</div>
+          <div class="ch-who">→ これはウィンドウマネージャ／デスクトップ環境の仕事</div>
+        </div>
+        <div class="ch-badge cb-ng">× 不正解</div>
+      </div>
+      <div class="choice ch-ng">
+        <div class="ch-num">⑥</div>
+        <div>
+          <div class="ch-text">モニタの画面表示やキーボード、マウスなどのハードウェアを管理する</div>
+          <div class="ch-who">→ これはXサーバの仕事。DMはHWを直接触らない</div>
+        </div>
+        <div class="ch-badge cb-ng">× 不正解</div>
+      </div>
+      <div class="choice ch-no">
+        <div class="ch-num">⑦</div>
+        <div>
+          <div class="ch-text">ユーザにCUI環境のログインを提供する</div>
+          <div class="ch-who">→ DMはGUI専門。CUIログインはgettyやloginコマンドの仕事</div>
+        </div>
+        <div class="ch-badge cb-no">× 論外</div>
+      </div>
+    </div>
+  </div>
+
+  <p class="sl">試験で混ざりやすい 3つの引っかかりポイント</p>
+  <div class="card">
+    <div class="conf-list">
+      <div class="conf">
+        <div class="conf-icon">⚠</div>
+        <div class="conf-body"><span class="conf-em">DM と Xサーバを混同しやすい</span><br>どちらも「画面に関係する」イメージがあるが、Xサーバはハードウェア管理の土台、DMはログイン画面を出す受付。「ハードウェアを管理する」はXサーバの選択肢。</div>
+      </div>
+      <div class="conf">
+        <div class="conf-icon">⚠</div>
+        <div class="conf-body"><span class="conf-em">WM と DE を混同しやすい</span><br>WMはウィンドウの枠だけ管理。DEはWMを含むフルセット。「アイコンやメニューを提供する」はDE（またはWM）の仕事で、DMの仕事ではない。</div>
+      </div>
+      <div class="conf">
+        <div class="conf-icon">⚠</div>
+        <div class="conf-body"><span class="conf-em">DM は「ログイン専門」と覚える</span><br>DMの仕事は①GUIログイン画面を出す ②認証する ③DEを起動する の3つだけ。描画も、ウィンドウ管理も、HW制御もしない。</div>
+      </div>
+    </div>
+    <div class="key-box" style="margin-top:10px;">
+      <div class="key-text">
+        Xサーバ → 土台・ハードウェア担当<br>
+        ウィンドウマネージャ → ウィンドウの見た目担当<br>
+        デスクトップ環境 → WM込みのフルセット<br>
+        ディスプレイマネージャ → GUIログイン受付・DE起動<br>
+        DISPLAY変数 → どのXサーバに画面を送るかの指定
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function toggle(id) {
+  const el = document.getElementById(id);
+  el.classList.toggle('open');
+}
+</script>
