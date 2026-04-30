@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>grep 完全ガイド</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:#f5f4fb;color:#2d2a40;font-family:'Noto Sans JP',sans-serif;padding:20px 16px 48px;line-height:1.6;}
+
+  /* ヘッダー */
+  .page-title{text-align:center;margin-bottom:24px;}
+  .page-title h1{font-size:20px;font-weight:700;color:#3d3489;margin-bottom:4px;}
+  .page-title p{font-size:12px;color:#7b77a0;}
+
+  /* TOC */
+  .toc{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:22px;}
+  .toc a{text-decoration:none;font-size:12px;font-weight:500;color:#5040b8;background:#eeedfe;border-radius:20px;padding:4px 12px;border:1px solid #d0ccf8;}
+  .toc a:hover{background:#d8d5fc;}
+
+  /* セクション見出し */
+  .sec{font-size:11px;font-weight:700;color:#9b97c0;letter-spacing:.07em;margin:26px 0 10px 2px;}
+
+  /* カード */
+  .card{background:#fff;border-radius:14px;padding:16px 18px;margin-bottom:10px;border:1px solid #e8e6f4;}
+  .card-label{font-size:11px;font-weight:700;color:#9b97c0;letter-spacing:.06em;margin-bottom:10px;}
+
+  /* カラーカード */
+  .card-pur{background:#eeedfe;border-color:#d0ccf8;}
+  .card-teal{background:#e5f8f2;border-color:#b8ead8;}
+  .card-amber{background:#fef6e8;border-color:#f5dea8;}
+  .card-pink{background:#fde8ed;border-color:#f5b8c8;}
+  .card-blue{background:#e8f4fe;border-color:#b8d8f8;}
+
+  /* ルールボックス */
+  .rule-box{background:#eeedfe;border-radius:12px;padding:14px 18px;margin-bottom:10px;border:1px solid #d0ccf8;text-align:center;}
+  .rule-main{font-size:16px;font-weight:700;color:#3d3489;margin-bottom:4px;}
+  .rule-sub{font-size:12px;color:#6b64b0;}
+
+  /* オプション行 */
+  .opt-list{display:flex;flex-direction:column;gap:7px;}
+  .opt-row{display:grid;grid-template-columns:56px 1fr;gap:12px;align-items:start;padding:11px 14px;border-radius:10px;border:1px solid #e8e6f4;background:#f9f9fd;}
+  .opt-row.important{background:#eeedfe;border-color:#d0ccf8;}
+  .opt-row.danger{background:#fde8ed;border-color:#f5b8c8;}
+  .opt-key{font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700;color:#3d3489;text-align:center;padding-top:1px;}
+  .opt-row.important .opt-key{color:#3d3489;}
+  .opt-row.danger .opt-key{color:#8b2040;}
+  .opt-body{}
+  .opt-name{font-size:13px;font-weight:700;color:#2d2a40;margin-bottom:2px;}
+  .opt-desc{font-size:12px;color:#7b77a0;line-height:1.6;}
+  .imp-badge{display:inline-block;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;margin-left:6px;vertical-align:middle;}
+  .ib-must{background:#3d3489;color:#eeedfe;}
+  .ib-freq{background:#085041;color:#e5f8f2;}
+
+  /* コード例 */
+  .code-rows{display:flex;flex-direction:column;gap:6px;}
+  .code-row{background:#f5f4fb;border-radius:10px;padding:10px 14px;display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;border:1px solid #e8e6f4;}
+  .code-cmd{font-family:'JetBrains Mono',monospace;font-size:12px;color:#3d3489;font-weight:500;}
+  .code-desc{font-size:11px;color:#9b97c0;text-align:right;white-space:nowrap;}
+  code{font-family:'JetBrains Mono',monospace;font-size:12px;background:#eeedfe;color:#3d3489;padding:1px 5px;border-radius:3px;}
+
+  /* 派生コマンド */
+  .variant-list{display:flex;flex-direction:column;gap:10px;}
+  .variant{border-radius:12px;padding:14px 16px;border:1px solid;}
+  .v-egrep{background:#e5f8f2;border-color:#b8ead8;}
+  .v-fgrep{background:#fef6e8;border-color:#f5dea8;}
+  .v-pgrep{background:#eeedfe;border-color:#d0ccf8;}
+  .v-rgrep{background:#fde8ed;border-color:#f5b8c8;}
+  .v-head{display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap;}
+  .v-name{font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700;}
+  .ve-name{color:#085041;} .vf-name{color:#7a4f00;} .vp-name{color:#3d3489;} .vr-name{color:#8b2040;}
+  .v-eq{font-size:12px;color:#9b97c0;}
+  .v-alt{font-family:'JetBrains Mono',monospace;font-size:12px;background:#fff;padding:2px 8px;border-radius:6px;border:1px solid #e8e6f4;color:#5040b8;}
+  .v-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;margin-left:auto;}
+  .vb-e{background:#085041;color:#e5f8f2;} .vb-f{background:#7a4f00;color:#fef6e8;}
+  .vb-p{background:#3d3489;color:#eeedfe;} .vb-r{background:#8b2040;color:#fde8ed;}
+  .v-title{font-size:13px;font-weight:700;color:#2d2a40;margin-bottom:3px;}
+  .v-desc{font-size:12px;color:#7b77a0;line-height:1.6;}
+
+  /* 比較表 */
+  .cmp-table{width:100%;border-collapse:collapse;font-size:12px;}
+  .cmp-table th{font-size:11px;font-weight:700;color:#9b97c0;text-align:left;padding:7px 10px;border-bottom:1px solid #e8e6f4;}
+  .cmp-table td{padding:9px 10px;border-bottom:1px solid #f0eef8;vertical-align:top;color:#4a4668;line-height:1.5;}
+  .cmp-table tr:last-child td{border-bottom:none;}
+  .td-code{font-family:'JetBrains Mono',monospace;font-size:12px;color:#3d3489;font-weight:500;}
+
+  /* 注意 */
+  .note-list{display:flex;flex-direction:column;gap:8px;}
+  .note{display:flex;gap:10px;align-items:flex-start;background:#f5f4fb;border-radius:10px;padding:11px 14px;border-left:3px solid;}
+  .note-warn{border-color:#f5b030;}
+  .note-tip{border-color:#5dcaa5;}
+  .note-icon{font-size:14px;flex-shrink:0;margin-top:1px;}
+  .note-title{font-size:13px;font-weight:700;color:#2d2a40;margin-bottom:2px;}
+  .note-body{font-size:12px;color:#7b77a0;line-height:1.6;}
+
+  /* まとめ */
+  .sum-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;}
+  .sum-card{background:#fff;border-radius:12px;padding:14px;border:1px solid #e8e6f4;}
+  .sum-title{font-size:11px;font-weight:700;color:#9b97c0;letter-spacing:.05em;margin-bottom:8px;}
+  .sum-item{font-size:12px;color:#4a4668;line-height:1.8;}
+  .sum-item code{font-family:'JetBrains Mono',monospace;font-size:11px;background:#f0eef8;color:#3d3489;padding:1px 5px;border-radius:3px;}
+
+  /* クイズ */
+  .q-wrap{display:flex;flex-direction:column;gap:14px;}
+  .q-box{background:#f5f4fb;border-radius:12px;padding:14px 16px;}
+  .q-num{font-size:10px;font-weight:700;color:#9b97c0;letter-spacing:.06em;margin-bottom:6px;}
+  .q-sc{background:#fff;border-radius:8px;padding:8px 12px;font-size:12px;color:#7b77a0;font-family:'JetBrains Mono',monospace;line-height:1.7;margin-bottom:10px;border:1px solid #e8e6f4;overflow-x:auto;white-space:nowrap;}
+  .q-text{font-size:13px;font-weight:700;color:#2d2a40;margin-bottom:10px;line-height:1.5;}
+  .q-opts{display:flex;flex-direction:column;gap:6px;}
+  .qb{background:#fff;border:1px solid #e8e6f4;border-radius:10px;padding:10px 14px;font-size:12px;font-family:'JetBrains Mono',monospace;color:#2d2a40;cursor:pointer;text-align:left;transition:background .15s;}
+  .qb:hover:not(:disabled){background:#eeedfe;}
+  .qb.sel{border-color:#5040b8;background:#eeedfe;font-weight:700;}
+  .qb.ok{background:#e5f8f2;border-color:#5DCAA5;color:#085041;font-weight:700;}
+  .qb.ng{background:#fde8ed;border-color:#f5b8c8;color:#8b2040;}
+  .check-btn{background:#eeedfe;border:1px solid #d0ccf8;border-radius:10px;padding:9px 20px;font-size:12px;font-weight:700;color:#3d3489;cursor:pointer;margin-top:10px;display:none;}
+  .check-btn:hover{background:#d8d5fc;}
+  .check-btn:disabled{opacity:.4;cursor:default;}
+  .single-note{font-size:11px;color:#9b97c0;margin-top:6px;}
+  .qr{font-size:12px;margin-top:10px;padding:10px 12px;border-radius:8px;display:none;line-height:1.7;}
+  .qr-ok{background:#e5f8f2;color:#085041;}
+  .qr-ng{background:#fde8ed;color:#8b2040;}
+
+  @media(max-width:480px){
+    .sum-grid{grid-template-columns:1fr;}
+    .code-row{grid-template-columns:1fr;gap:3px;}
+    .code-desc{text-align:left;}
+  }
+</style>
+</head>
+<body>
+
+<div class="page-title">
+  <h1>grep 完全ガイド</h1>
+  <p>オプション / pgrep / egrep / fgrep / rgrep</p>
+</div>
+
+<div class="toc">
+  <a href="#s1">基本オプション</a>
+  <a href="#s2">よく使う組み合わせ</a>
+  <a href="#s3">派生コマンド</a>
+  <a href="#s4">派生コマンド比較表</a>
+  <a href="#s5">引っかけ対策</a>
+  <a href="#s6">まとめ</a>
+  <a href="#s7">理解度チェック</a>
+</div>
+
+<!-- S1 -->
+<div class="sec" id="s1">01 / 基本オプション</div>
+<div class="rule-box">
+  <div class="rule-main">grep = 「文字列を含む行を抽出」するコマンド</div>
+  <div class="rule-sub">オプションで「どう抽出するか」をカスタマイズする</div>
+</div>
+
+<div class="card">
+  <div class="card-label">試験頻出 — 絶対に覚えるオプション</div>
+  <div class="opt-list">
+    <div class="opt-row important">
+      <div class="opt-key">-v</div>
+      <div class="opt-body">
+        <div class="opt-name">マッチした行を除外する<span class="imp-badge ib-must">最重要</span></div>
+        <div class="opt-desc">invert（反転）の v。「含む行」ではなく「含まない行」を表示する。<code>grep -v grep</code> でgrepプロセス自体を除外するのが典型的な使い方。</div>
+      </div>
+    </div>
+    <div class="opt-row important">
+      <div class="opt-key">-i</div>
+      <div class="opt-body">
+        <div class="opt-name">大文字・小文字を区別しない<span class="imp-badge ib-must">最重要</span></div>
+        <div class="opt-desc">ignore case の i。<code>grep -i error</code> で ERROR / Error / error すべてにマッチする。</div>
+      </div>
+    </div>
+    <div class="opt-row important">
+      <div class="opt-key">-n</div>
+      <div class="opt-body">
+        <div class="opt-name">行番号を表示する<span class="imp-badge ib-freq">頻出</span></div>
+        <div class="opt-desc">number の n。マッチした行の先頭に行番号を表示する。ログファイルのどこにエラーがあるか調べるときに便利。</div>
+      </div>
+    </div>
+    <div class="opt-row important">
+      <div class="opt-key">-c</div>
+      <div class="opt-body">
+        <div class="opt-name">マッチした行数を表示する<span class="imp-badge ib-freq">頻出</span></div>
+        <div class="opt-desc">count の c。マッチした行の内容ではなく「何行マッチしたか」の数だけ表示する。</div>
+      </div>
+    </div>
+    <div class="opt-row important">
+      <div class="opt-key">-l</div>
+      <div class="opt-body">
+        <div class="opt-name">マッチしたファイル名だけ表示する<span class="imp-badge ib-freq">頻出</span></div>
+        <div class="opt-desc">list の l。複数ファイルを検索するとき、中身ではなくファイル名だけ知りたい場合に使う。<code>grep -l error *.log</code></div>
+      </div>
+    </div>
+    <div class="opt-row important">
+      <div class="opt-key">-r</div>
+      <div class="opt-body">
+        <div class="opt-name">ディレクトリを再帰的に検索する<span class="imp-badge ib-freq">頻出</span></div>
+        <div class="opt-desc">recursive の r。ディレクトリ以下のファイルを全部検索する。<code>grep -r "error" /var/log/</code></div>
+      </div>
+    </div>
+    <div class="opt-row">
+      <div class="opt-key">-E</div>
+      <div class="opt-body">
+        <div class="opt-name">拡張正規表現を使う</div>
+        <div class="opt-desc">Extended regex の E。<code>|</code>（OR）や <code>+</code>（1回以上）など拡張的な正規表現が使える。<code>egrep</code> と同じ。</div>
+      </div>
+    </div>
+    <div class="opt-row">
+      <div class="opt-key">-F</div>
+      <div class="opt-body">
+        <div class="opt-name">正規表現を使わず固定文字列で検索</div>
+        <div class="opt-desc">Fixed string の F。<code>.</code> や <code>*</code> を正規表現ではなくそのまま文字として扱う。<code>fgrep</code> と同じ。</div>
+      </div>
+    </div>
+    <div class="opt-row">
+      <div class="opt-key">-w</div>
+      <div class="opt-body">
+        <div class="opt-name">単語単位でマッチする</div>
+        <div class="opt-desc">word の w。<code>grep -w log</code> は「log」という単語だけにマッチ。「login」「syslog」などは除外される。</div>
+      </div>
+    </div>
+    <div class="opt-row">
+      <div class="opt-key">-A n</div>
+      <div class="opt-body">
+        <div class="opt-name">マッチ行の後ろ n 行も表示</div>
+        <div class="opt-desc">After の A。<code>grep -A 3 error log.txt</code> でエラー行とその後3行を表示。前後の文脈を確認するときに使う。</div>
+      </div>
+    </div>
+    <div class="opt-row">
+      <div class="opt-key">-B n</div>
+      <div class="opt-body">
+        <div class="opt-name">マッチ行の前 n 行も表示</div>
+        <div class="opt-desc">Before の B。<code>grep -B 3 error log.txt</code> でエラー行とその前3行を表示。</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S2 -->
+<div class="sec" id="s2">02 / よく使う組み合わせ</div>
+<div class="card">
+  <div class="code-rows">
+    <div class="code-row"><span class="code-cmd">ps aux | grep httpd | grep -v grep</span><span class="code-desc">grepプロセス自身を除外</span></div>
+    <div class="code-row"><span class="code-cmd">grep -i "error" /var/log/syslog</span><span class="code-desc">大文字小文字を無視してerror検索</span></div>
+    <div class="code-row"><span class="code-cmd">grep -rn "404" /var/log/</span><span class="code-desc">再帰的に404を検索＋行番号表示</span></div>
+    <div class="code-row"><span class="code-cmd">grep -v "^#" /etc/sshd_config</span><span class="code-desc">コメント行（#始まり）を除外</span></div>
+    <div class="code-row"><span class="code-cmd">grep -c "failed" auth.log</span><span class="code-desc">failedが何行あるか数える</span></div>
+    <div class="code-row"><span class="code-cmd">grep -E "error|warn" app.log</span><span class="code-desc">errorまたはwarnを含む行</span></div>
+    <div class="code-row"><span class="code-cmd">grep -w "root" /etc/passwd</span><span class="code-desc">rootという単語だけ（rootkitは除外）</span></div>
+  </div>
+</div>
+
+<!-- S3 -->
+<div class="sec" id="s3">03 / 派生コマンド</div>
+<div class="variant-list">
+
+  <div class="variant v-egrep">
+    <div class="v-head">
+      <span class="v-name ve-name">egrep</span>
+      <span class="v-eq">=</span>
+      <span class="v-alt">grep -E</span>
+      <span class="v-badge vb-e">拡張正規表現</span>
+    </div>
+    <div class="v-title">Extended grep — 拡張正規表現が使える</div>
+    <div class="v-desc">
+      <code>|</code>（OR）、<code>+</code>（1回以上）、<code>?</code>（0か1回）、<code>{n}</code>（n回繰り返し）などが使える。<br>
+      通常の grep では <code>\|</code> のようにエスケープが必要なものが、そのまま書ける。<br>
+      <strong>試験のポイント：</strong>「grep -E と同じ」「拡張正規表現を使う」という選択肢が来たらこれ。
+    </div>
+    <div style="margin-top:8px;">
+      <div class="code-rows">
+        <div class="code-row"><span class="code-cmd">egrep "error|warn" app.log</span><span class="code-desc">errorまたはwarnを検索</span></div>
+        <div class="code-row"><span class="code-cmd">grep -E "error|warn" app.log</span><span class="code-desc">上と同じ意味</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="variant v-fgrep">
+    <div class="v-head">
+      <span class="v-name vf-name">fgrep</span>
+      <span class="v-eq">=</span>
+      <span class="v-alt">grep -F</span>
+      <span class="v-badge vb-f">固定文字列</span>
+    </div>
+    <div class="v-title">Fixed grep — 正規表現を使わない</div>
+    <div class="v-desc">
+      <code>.</code> や <code>*</code> などを正規表現として解釈せず、そのままの文字として検索する。<br>
+      ピリオドやアスタリスクを含む文字列を検索するとき便利。エスケープ不要で高速。<br>
+      <strong>試験のポイント：</strong>「固定文字列で検索」「正規表現を使わない」= fgrep（grep -F）。
+    </div>
+    <div style="margin-top:8px;">
+      <div class="code-rows">
+        <div class="code-row"><span class="code-cmd">fgrep "192.168.1.1" access.log</span><span class="code-desc">ピリオドをそのまま検索</span></div>
+        <div class="code-row"><span class="code-cmd">grep -F "192.168.1.1" access.log</span><span class="code-desc">上と同じ意味</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="variant v-pgrep">
+    <div class="v-head">
+      <span class="v-name vp-name">pgrep</span>
+      <span class="v-eq">≠ grep オプション</span>
+      <span class="v-badge vb-p">プロセス専用</span>
+    </div>
+    <div class="v-title">Process grep — プロセス名でPIDを検索する専用コマンド</div>
+    <div class="v-desc">
+      <code>ps | grep</code> の組み合わせとは別物。プロセス名で検索してPIDだけを返す。<br>
+      grep プロセス自身が混入しないので、httpd問題の解決策になる。<br>
+      <code>-u</code> で特定ユーザのプロセスのみ、<code>-l</code> でプロセス名も一緒に表示できる。<br>
+      <strong>試験のポイント：</strong>「grepプロセスが混入する問題の解決策」「プロセス名でPIDを検索」= pgrep。
+    </div>
+    <div style="margin-top:8px;">
+      <div class="code-rows">
+        <div class="code-row"><span class="code-cmd">pgrep httpd</span><span class="code-desc">httpdのPIDだけ表示</span></div>
+        <div class="code-row"><span class="code-cmd">pgrep -l httpd</span><span class="code-desc">PID＋プロセス名を表示</span></div>
+        <div class="code-row"><span class="code-cmd">pgrep -u alice</span><span class="code-desc">aliceが実行中のプロセスPID一覧</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="variant v-rgrep">
+    <div class="v-head">
+      <span class="v-name vr-name">rgrep</span>
+      <span class="v-eq">=</span>
+      <span class="v-alt">grep -r</span>
+      <span class="v-badge vb-r">再帰検索</span>
+    </div>
+    <div class="v-title">Recursive grep — ディレクトリを再帰的に検索</div>
+    <div class="v-desc">
+      指定したディレクトリ以下のファイルを全部検索する。<code>grep -r</code> と同じ。<br>
+      <strong>試験のポイント：</strong>「ディレクトリ以下を再帰的に検索」= rgrep または grep -r。
+    </div>
+    <div style="margin-top:8px;">
+      <div class="code-rows">
+        <div class="code-row"><span class="code-cmd">rgrep "error" /var/log/</span><span class="code-desc">/var/log/以下を再帰的に検索</span></div>
+        <div class="code-row"><span class="code-cmd">grep -r "error" /var/log/</span><span class="code-desc">上と同じ意味</span></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- S4 -->
+<div class="sec" id="s4">04 / 派生コマンド 比較表</div>
+<div class="card">
+  <table class="cmp-table">
+    <tr><th>コマンド</th><th>同じ書き方</th><th>特徴・使いどころ</th></tr>
+    <tr><td class="td-code">egrep</td><td class="td-code">grep -E</td><td>拡張正規表現（| + ? {n} が使える）</td></tr>
+    <tr><td class="td-code">fgrep</td><td class="td-code">grep -F</td><td>固定文字列（正規表現を使わない・高速）</td></tr>
+    <tr><td class="td-code">rgrep</td><td class="td-code">grep -r</td><td>ディレクトリを再帰的に検索</td></tr>
+    <tr><td class="td-code">pgrep</td><td>（別コマンド）</td><td>プロセス名でPIDを検索する専用コマンド</td></tr>
+  </table>
+  <div class="note note-tip" style="margin-top:10px;">
+    <div class="note-icon">💡</div>
+    <div>
+      <div class="note-title">pgrep だけ別物</div>
+      <div class="note-body">egrep / fgrep / rgrep は「grep のオプションに別名をつけたもの」。でも pgrep は ps コマンドの代わりになるまったく別のコマンド。混同しないように。</div>
+    </div>
+  </div>
+</div>
+
+<!-- S5 -->
+<div class="sec" id="s5">05 / 試験でよくある引っかけ</div>
+<div class="note-list">
+  <div class="note note-warn">
+    <div class="note-icon">⚠</div>
+    <div>
+      <div class="note-title">-v は「verbose（詳細表示）」ではなく「invert（除外）」</div>
+      <div class="note-body">他のコマンドで <code>-v</code> は詳細表示のことが多いが、grep の <code>-v</code> は「マッチした行を除外する」。意味が逆なので注意。</div>
+    </div>
+  </div>
+  <div class="note note-warn">
+    <div class="note-icon">⚠</div>
+    <div>
+      <div class="note-title">-l は「行を表示」ではなく「ファイル名を表示」</div>
+      <div class="note-body"><code>grep -l</code> は list（一覧）の l。行の内容ではなく、マッチしたファイルの名前だけを表示する。</div>
+    </div>
+  </div>
+  <div class="note note-warn">
+    <div class="note-icon">⚠</div>
+    <div>
+      <div class="note-title">grep -p は存在しない</div>
+      <div class="note-body"><code>grep -p</code> というオプションは存在しない。<code>ps -p</code>（PIDで絞り込む）と混同させる引っかけ。見たら即切り。</div>
+    </div>
+  </div>
+  <div class="note note-tip">
+    <div class="note-icon">💡</div>
+    <div>
+      <div class="note-title">「拡張正規表現」の問題が来たら egrep と grep -E は両方正解</div>
+      <div class="note-body">「全て選択」問題でどちらも選択肢にある場合は両方選ぶ。同じ意味なので両方正解になる。</div>
+    </div>
+  </div>
+</div>
+
+<!-- S6 -->
+<div class="sec" id="s6">06 / 試験直前まとめ</div>
+<div class="sum-grid">
+  <div class="sum-card">
+    <div class="sum-title">絶対覚えるオプション</div>
+    <div class="sum-item">
+      <code>-v</code> 除外（invert）<br>
+      <code>-i</code> 大文字小文字無視<br>
+      <code>-n</code> 行番号表示<br>
+      <code>-c</code> 行数を表示<br>
+      <code>-l</code> ファイル名のみ表示<br>
+      <code>-r</code> 再帰的に検索
+    </div>
+  </div>
+  <div class="sum-card">
+    <div class="sum-title">派生コマンドの対応</div>
+    <div class="sum-item">
+      <code>egrep</code> = grep -E（拡張正規表現）<br>
+      <code>fgrep</code> = grep -F（固定文字列）<br>
+      <code>rgrep</code> = grep -r（再帰検索）<br>
+      <code>pgrep</code> = プロセス検索専用
+    </div>
+  </div>
+  <div class="sum-card">
+    <div class="sum-title">grepプロセス混入の解決策</div>
+    <div class="sum-item">
+      <code>grep -v grep</code> でgrepを除外<br>
+      <code>pgrep 名前</code> で最初から回避<br>
+      この2つが正解パターン
+    </div>
+  </div>
+  <div class="sum-card">
+    <div class="sum-title">存在しないオプション（即切り）</div>
+    <div class="sum-item">
+      <code>grep -p</code> → 存在しない<br>
+      <code>xshow</code>などと同じく<br>
+      試験の引っかけ選択肢
+    </div>
+  </div>
+</div>
+
+<!-- S7 理解度チェック -->
+<div class="sec" id="s7">07 / 理解度チェック — 3問</div>
+<div class="card">
+  <div class="q-wrap">
+
+    <!-- Q1 -->
+    <div class="q-box">
+      <div class="q-num">問 1 / 3</div>
+      <div class="q-sc">$ grep "error" /var/log/syslog</div>
+      <div class="q-text">大文字・小文字を区別せず「error」「ERROR」「Error」をまとめて検索したい。正しいコマンドはどれか？</div>
+      <div class="q-opts">
+        <button class="qb" onclick="single(this,false,'q1')">grep -v "error" /var/log/syslog</button>
+        <button class="qb" onclick="single(this,false,'q1')">grep -n "error" /var/log/syslog</button>
+        <button class="qb" onclick="single(this,true,'q1')">grep -i "error" /var/log/syslog</button>
+        <button class="qb" onclick="single(this,false,'q1')">grep -c "error" /var/log/syslog</button>
+      </div>
+      <div class="qr" id="q1r"></div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="q-box">
+      <div class="q-num">問 2 / 3（複数選択）</div>
+      <div class="q-sc">ps ax | grep httpd</div>
+      <div class="q-text">このコマンドでgrepプロセス自身が混入する問題を解決できるコマンドを全て選べ。</div>
+      <div class="q-opts" id="q2opts">
+        <button class="qb" onclick="multi('q2',this)">ps ax | grep httpd | grep -E httpd</button>
+        <button class="qb" onclick="multi('q2',this)">ps ax | grep httpd | grep -v grep</button>
+        <button class="qb" onclick="multi('q2',this)">ps ax | grep -p httpd</button>
+        <button class="qb" onclick="multi('q2',this)">pgrep httpd</button>
+      </div>
+      <button class="check-btn" id="q2btn" onclick="checkMulti('q2',[1,3],'grepプロセス混入の解決策は2つ。① grep -v grep でgrepを含む行を除外する。② pgrep はプロセス専用コマンドなので最初からgrepが混入しない。grep -E は除外ではなく拡張正規表現、grep -p は存在しないオプション。')">確認する</button>
+      <div class="qr" id="q2r"></div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="q-box">
+      <div class="q-num">問 3 / 3</div>
+      <div class="q-text">egrep コマンドと同じ意味の grep オプションはどれか？</div>
+      <div class="q-opts">
+        <button class="qb" onclick="single(this,false,'q3')">grep -F</button>
+        <button class="qb" onclick="single(this,false,'q3')">grep -v</button>
+        <button class="qb" onclick="single(this,true,'q3')">grep -E</button>
+        <button class="qb" onclick="single(this,false,'q3')">grep -r</button>
+      </div>
+      <div class="qr" id="q3r"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+var q2sel=new Set();
+
+function single(btn,ok,id){
+  btn.closest('.q-box').querySelectorAll('.qb').forEach(function(b){b.disabled=true;});
+  btn.classList.add(ok?'ok':'ng');
+  if(!ok){
+    var btns=btn.closest('.q-box').querySelectorAll('.qb');
+    btns.forEach(function(b){if(b.onclick.toString().indexOf('true')>=0)b.classList.add('ok');});
+  }
+  var r=document.getElementById(id+'r');
+  r.style.display='block';
+  var msgs={
+    q1:{ok:'正解！ -i は ignore case の i。大文字小文字を無視して検索できる。ログ調査でよく使う定番オプション。',
+        ng:{0:'-v はマッチした行を除外するオプション。大文字小文字の無視とは別。',1:'-n は行番号を表示するオプション。大文字小文字の無視とは別。',3:'-c はマッチした行数を数えるオプション。大文字小文字の無視とは別。'}},
+    q3:{ok:'正解！ egrep = grep -E（Extended = 拡張正規表現）。| や + などの拡張的な正規表現が使える。',
+        ng:{0:'grep -F は fgrep と同じ。固定文字列で検索するオプション。',1:'grep -v はマッチした行を除外するオプション。',3:'grep -r は rgrep と同じ。再帰的に検索するオプション。'}}
+  };
+  if(ok){r.className='qr qr-ok';r.textContent=msgs[id].ok;}
+  else{
+    r.className='qr qr-ng';
+    var idx=Array.from(btn.closest('.q-box').querySelectorAll('.qb')).indexOf(btn);
+    r.textContent=msgs[id].ng[idx]||'不正解。もう一度選択肢を確認してみよう。';
+  }
+}
+
+function multi(id,btn){
+  var t=btn.textContent.trim();
+  if(q2sel.has(t)){q2sel.delete(t);btn.classList.remove('sel');}
+  else{q2sel.add(t);btn.classList.add('sel');}
+  document.getElementById(id+'btn').style.display=q2sel.size>0?'block':'none';
+  document.getElementById(id+'btn').disabled=false;
+}
+
+function checkMulti(id,correctIdxs,msg){
+  var btns=document.querySelectorAll('#'+id+'opts .qb');
+  btns.forEach(function(b){b.disabled=true;b.classList.remove('sel');});
+  var allOk=true;
+  correctIdxs.forEach(function(i){
+    var t=btns[i].textContent.trim();
+    if(!q2sel.has(t))allOk=false;
+    btns[i].classList.add('ok');
+  });
+  q2sel.forEach(function(t){
+    btns.forEach(function(b){
+      if(b.textContent.trim()===t&&!b.classList.contains('ok'))b.classList.add('ng');
+    });
+  });
+  if(q2sel.size!==correctIdxs.length)allOk=false;
+  var r=document.getElementById(id+'r');
+  r.style.display='block';
+  r.className='qr '+(allOk?'qr-ok':'qr-ng');
+  r.textContent=allOk?'全問正解！ '+msg:msg;
+  document.getElementById(id+'btn').disabled=true;
+}
+</script>
+
+</body>
+</html>
