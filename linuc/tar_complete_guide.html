@@ -1,0 +1,238 @@
+
+<style>
+  .w{padding:1rem 0;font-family:var(--font-sans);}
+  .sl{font-size:11px;font-weight:500;color:var(--color-text-secondary);letter-spacing:.06em;margin:0 0 10px;}
+  .card{background:var(--color-background-primary);border:.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:16px 18px;margin-bottom:12px;}
+
+  /* イメージ図 */
+  .image-row{display:grid;grid-template-columns:1fr 40px 1fr 40px 1fr;align-items:center;gap:4px;margin-bottom:12px;}
+  .img-box{border-radius:var(--border-radius-md);padding:12px 8px;text-align:center;}
+  .img-files{background:#E1F5EE;border:.5px solid #5DCAA5;}
+  .img-tar{background:#EEEDFE;border:.5px solid #AFA9EC;}
+  .img-targz{background:#FAEEDA;border:.5px solid #EF9F27;}
+  .img-icon{font-size:20px;margin-bottom:4px;}
+  .img-title{font-size:12px;font-weight:500;}
+  .img-tc{color:#085041;} .img-tp{color:#3C3489;} .img-ta{color:#633806;}
+  .img-sub{font-size:11px;color:var(--color-text-secondary);margin-top:2px;line-height:1.4;}
+  .arrow-lbl{text-align:center;}
+  .arr-icon{font-size:18px;color:var(--color-text-secondary);}
+  .arr-sub{font-size:10px;color:var(--color-text-secondary);margin-top:2px;}
+
+  /* オプション表 */
+  .opt-section{margin-bottom:10px;}
+  .opt-group-label{font-size:12px;font-weight:500;color:var(--color-text-secondary);margin-bottom:6px;padding-left:2px;}
+  .opt-rows{display:flex;flex-direction:column;gap:5px;}
+  .opt-row{display:grid;grid-template-columns:36px 90px 1fr;align-items:start;gap:10px;padding:9px 12px;border-radius:var(--border-radius-md);border:.5px solid var(--color-border-tertiary);}
+  .opt-must{background:#EEEDFE;border-color:#AFA9EC;}
+  .opt-act{background:#E1F5EE;border-color:#5DCAA5;}
+  .opt-mod{background:#F1EFE8;border-color:#B4B2A9;}
+  .opt-letter{font-family:var(--font-mono);font-size:20px;font-weight:500;text-align:center;line-height:1;}
+  .ol-must{color:#534AB7;} .ol-act{color:#0F6E56;} .ol-mod{color:#5F5E5A;}
+  .opt-name{font-size:12px;font-weight:500;padding-top:2px;}
+  .on-must{color:#3C3489;} .on-act{color:#085041;} .on-mod{color:#444441;}
+  .opt-desc{font-size:12px;color:var(--color-text-secondary);line-height:1.5;padding-top:2px;}
+
+  /* 黄金パターン */
+  .pattern-list{display:flex;flex-direction:column;gap:8px;}
+  .pattern{border-radius:var(--border-radius-md);padding:12px 14px;border:.5px solid var(--color-border-tertiary);}
+  .p-create{background:#EEEDFE;border-color:#AFA9EC;}
+  .p-extract{background:#E1F5EE;border-color:#5DCAA5;}
+  .p-list{background:#F1EFE8;border-color:#B4B2A9;}
+  .p-head{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+  .p-badge{font-size:11px;font-weight:500;padding:2px 8px;border-radius:20px;}
+  .pb-c{background:#534AB7;color:#EEEDFE;}
+  .pb-x{background:#0F6E56;color:#E1F5EE;}
+  .pb-t{background:#5F5E5A;color:#F1EFE8;}
+  .p-cmd{font-family:var(--font-mono);font-size:14px;font-weight:500;color:var(--color-text-primary);}
+  .p-break{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;}
+  .p-bit{font-size:11px;padding:2px 8px;border-radius:20px;}
+  .bit-c{background:#CECBF6;color:#26215C;}
+  .bit-x{background:#9FE1CB;color:#04342C;}
+  .bit-g{background:#FAEEDA;color:#412402;}
+  .bit-b{background:#FBEAF0;color:#4B1528;}
+  .bit-v{background:#F1EFE8;color:#2C2C2A;}
+  .bit-f{background:#E6F1FB;color:#042C53;}
+  .p-meaning{font-size:12px;color:var(--color-text-secondary);margin-top:6px;line-height:1.5;}
+
+  /* クイズ */
+  .quiz-q{font-size:14px;color:var(--color-text-primary);margin-bottom:10px;line-height:1.6;}
+  .quiz-opts{display:flex;flex-direction:column;gap:6px;}
+  .q-btn{background:var(--color-background-primary);border:.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:9px 14px;font-size:13px;font-family:var(--font-mono);color:var(--color-text-primary);cursor:pointer;text-align:left;}
+  .q-btn:hover{background:var(--color-background-secondary);}
+  .q-btn.ok{background:#E1F5EE;border-color:#5DCAA5;color:#085041;}
+  .q-btn.ng{background:#FAECE7;border-color:#F0997B;color:#712B13;}
+  .q-result{font-size:13px;margin-top:8px;padding:10px 14px;border-radius:var(--border-radius-md);display:none;line-height:1.7;}
+  .r-ok{background:#E1F5EE;color:#085041;}
+  .r-ng{background:#FAECE7;color:#712B13;}
+</style>
+
+<div class="w">
+  <h2 class="sr-only">tar コマンド完全ガイド — 立ち位置・オプション・パターン</h2>
+
+  <p class="sl">tar の立ち位置を図で理解する</p>
+  <div class="card">
+    <div class="image-row">
+      <div class="img-box img-files">
+        <div class="img-icon">📄📄📄</div>
+        <div class="img-title img-tc">バラバラのファイル</div>
+        <div class="img-sub">a.txt b.txt c.txt</div>
+      </div>
+      <div class="arrow-lbl">
+        <div class="arr-icon">→</div>
+        <div class="arr-sub">tar でまとめる</div>
+      </div>
+      <div class="img-box img-tar">
+        <div class="img-icon">📦</div>
+        <div class="img-title img-tp">.tar ファイル</div>
+        <div class="img-sub">まとまってるだけ<br>サイズはほぼ同じ</div>
+      </div>
+      <div class="arrow-lbl">
+        <div class="arr-icon">→</div>
+        <div class="arr-sub">gzip で圧縮</div>
+      </div>
+      <div class="img-box img-targz">
+        <div class="img-icon">🗜</div>
+        <div class="img-title img-ta">.tar.gz ファイル</div>
+        <div class="img-sub">まとめて＋小さい<br>よく見る形式</div>
+      </div>
+    </div>
+    <div style="background:#EEEDFE;border-radius:var(--border-radius-md);padding:10px 14px;">
+      <div style="font-size:13px;color:#3C3489;line-height:1.7;">
+        tar 単体 = まとめるだけ（圧縮しない）<br>
+        tar + z = gzip 圧縮も一緒にやる（.tar.gz）<br>
+        tar + j = bzip2 圧縮も一緒にやる（.tar.bz2）
+      </div>
+    </div>
+  </div>
+
+  <p class="sl">オプションは「3種類」に分けて覚える</p>
+  <div class="card">
+    <div class="opt-section">
+      <div class="opt-group-label">① 必須：何をするか（1つだけ選ぶ）</div>
+      <div class="opt-rows">
+        <div class="opt-row opt-must">
+          <div class="opt-letter ol-must">c</div>
+          <div class="opt-name on-must">create（作成）</div>
+          <div class="opt-desc">アーカイブを新しく作る。ファイルをまとめるとき。</div>
+        </div>
+        <div class="opt-row opt-must">
+          <div class="opt-letter ol-must">x</div>
+          <div class="opt-name on-must">extract（展開）</div>
+          <div class="opt-desc">アーカイブを展開する。中身を取り出すとき。</div>
+        </div>
+        <div class="opt-row opt-must">
+          <div class="opt-letter ol-must">t</div>
+          <div class="opt-name on-must">list（一覧）</div>
+          <div class="opt-desc">中身の一覧を表示する。展開せずに確認したいとき。</div>
+        </div>
+      </div>
+    </div>
+    <div class="opt-section" style="margin-top:12px;">
+      <div class="opt-group-label">② 圧縮形式：どの圧縮を使うか（省略可）</div>
+      <div class="opt-rows">
+        <div class="opt-row opt-act">
+          <div class="opt-letter ol-act">z</div>
+          <div class="opt-name on-act">gzip 連携</div>
+          <div class="opt-desc">.tar.gz や .tgz のときに付ける。gzip と組み合わせる。</div>
+        </div>
+        <div class="opt-row opt-act">
+          <div class="opt-letter ol-act">j</div>
+          <div class="opt-name on-act">bzip2 連携</div>
+          <div class="opt-desc">.tar.bz2 のときに付ける。bzip2 と組み合わせる。</div>
+        </div>
+      </div>
+    </div>
+    <div class="opt-section" style="margin-top:12px;">
+      <div class="opt-group-label">③ 補助：よく一緒に使うオプション</div>
+      <div class="opt-rows">
+        <div class="opt-row opt-mod">
+          <div class="opt-letter ol-mod">v</div>
+          <div class="opt-name on-mod">verbose（表示）</div>
+          <div class="opt-desc">処理中のファイル名を画面に表示する。確認用。</div>
+        </div>
+        <div class="opt-row opt-mod">
+          <div class="opt-letter ol-mod">f</div>
+          <div class="opt-name on-mod">file（ファイル指定）</div>
+          <div class="opt-desc">操作するアーカイブファイルを指定する。ほぼ必須。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="sl">試験に出る黄金パターン 3つ</p>
+  <div class="card">
+    <div class="pattern-list">
+      <div class="pattern p-create">
+        <div class="p-head">
+          <span class="p-badge pb-c">作成</span>
+          <span class="p-cmd">tar czvf archive.tar.gz ./dir</span>
+        </div>
+        <div class="p-break">
+          <span class="p-bit bit-c">c = 作る</span>
+          <span class="p-bit bit-g">z = gzip</span>
+          <span class="p-bit bit-v">v = 表示</span>
+          <span class="p-bit bit-f">f = ファイル指定</span>
+        </div>
+        <div class="p-meaning">dir フォルダをまとめて gzip 圧縮し archive.tar.gz を作る</div>
+      </div>
+      <div class="pattern p-extract">
+        <div class="p-head">
+          <span class="p-badge pb-x">展開</span>
+          <span class="p-cmd">tar xzvf archive.tar.gz</span>
+        </div>
+        <div class="p-break">
+          <span class="p-bit bit-x">x = 展開</span>
+          <span class="p-bit bit-g">z = gzip</span>
+          <span class="p-bit bit-v">v = 表示</span>
+          <span class="p-bit bit-f">f = ファイル指定</span>
+        </div>
+        <div class="p-meaning">archive.tar.gz を展開して中身を取り出す</div>
+      </div>
+      <div class="pattern p-list">
+        <div class="p-head">
+          <span class="p-badge pb-t">確認</span>
+          <span class="p-cmd">tar tzvf archive.tar.gz</span>
+        </div>
+        <div class="p-break">
+          <span class="p-bit bit-v" style="background:#D3D1C7;color:#2C2C2A;">t = 一覧表示</span>
+          <span class="p-bit bit-g">z = gzip</span>
+          <span class="p-bit bit-v">v = 表示</span>
+          <span class="p-bit bit-f">f = ファイル指定</span>
+        </div>
+        <div class="p-meaning">展開せずに中身のファイル一覧だけ確認する</div>
+      </div>
+    </div>
+  </div>
+
+  <p class="sl">根拠を持って答えてみよう</p>
+  <div class="card">
+    <div class="quiz-q">archive.tar.bz2 の中身を展開せずに一覧表示したい。正しいコマンドはどれ？</div>
+    <div class="quiz-opts" id="qopts">
+      <button class="q-btn" onclick="ans(this,false)">tar xjvf archive.tar.bz2</button>
+      <button class="q-btn" onclick="ans(this,false)">tar cjvf archive.tar.bz2</button>
+      <button class="q-btn" onclick="ans(this,true)">tar tjvf archive.tar.bz2</button>
+      <button class="q-btn" onclick="ans(this,false)">tar xzvf archive.tar.bz2</button>
+    </div>
+    <div id="qresult" class="q-result"></div>
+  </div>
+</div>
+
+<script>
+function ans(btn, ok) {
+  document.querySelectorAll('.q-btn').forEach(b => b.disabled = true);
+  const r = document.getElementById('qresult');
+  if (ok) {
+    btn.classList.add('ok');
+    r.className = 'q-result r-ok';
+    r.textContent = '正解！ t = 一覧表示、j = bzip2（.bz2 だから）、v = 表示、f = ファイル指定。「展開せず確認」= t、「.bz2」= j という2つの根拠で選べた？';
+  } else {
+    btn.classList.add('ng');
+    document.querySelectorAll('.q-btn')[2].classList.add('ok');
+    r.className = 'q-result r-ng';
+    if (btn.textContent.includes('xjvf')) r.textContent = 'x は展開。「一覧表示」なので t を使う。展開したくないときは t！';
+    else if (btn.textContent.includes('cjvf')) r.textContent = 'c は作成。「一覧表示」なので t を使う。';
+    else r.textContent = 'z は gzip 連携。.bz2 なので j（bzip2 連携）が必要。拡張子で圧縮形式を見分けよう。';
+  }
+  r.style.display = 'block';
+}
+</script>
